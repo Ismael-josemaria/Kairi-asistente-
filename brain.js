@@ -2480,15 +2480,49 @@ class AntigravityCore {
             }
         }
 
-        // 1.8 Búsqueda Web y Wikipedia Avanzada
-        const wikiMatch = text.match(/(?:busca en wikipedia|buscame informacion sobre|búscame información sobre|qué es|que es|quién es|quien es|dime sobre|hablame sobre|háblame sobre|busca informacion de|quién fue|quien fue|dame informacion de) (.*)/);
+        // 1.7.5 Memoria a Largo Plazo (Guardar)
+        const memorySaveMatch = text.match(/recuerda que (.*?) es (.*)|recuerda que (.*)/);
+        if (memorySaveMatch && !text.includes('como se calcula')) {
+            let key, val;
+            if (memorySaveMatch[1] && memorySaveMatch[2]) {
+                key = memorySaveMatch[1].trim();
+                val = memorySaveMatch[2].trim();
+            } else if (memorySaveMatch[3]) {
+                key = memorySaveMatch[3].trim();
+                val = memorySaveMatch[3].trim();
+            }
+            if (key && val) {
+                this.log(`ESCRIBIENDO EN CÓRTEX DE MEMORIA PERSISTENTE...`);
+                try {
+                    const res = await fetch(`/api/memory/save?key=${encodeURIComponent(key)}&value=${encodeURIComponent(val)}`);
+                    if (res.ok) {
+                        return `He guardado esa información en mi banco de memoria permanente. No lo olvidaré.`;
+                    }
+                } catch(e) {
+                    return "Error al acceder a mi banco de memoria. Puede que el servidor puente esté inactivo.";
+                }
+            }
+        }
+
+        // 1.8 Búsqueda Web, Wikipedia Avanzada y Consulta de Memoria
+        const wikiMatch = text.match(/(?:busca en wikipedia|buscame informacion sobre|búscame información sobre|qué es|que es|quién es|quien es|dime sobre|hablame sobre|háblame sobre|busca informacion de|quién fue|quien fue|dame informacion de|cuál es|cual es|donde esta|donde está) (.*)/);
         if (wikiMatch) {
             let query = wikiMatch[1].trim();
-            // Limpiar partículas innecesarias
-            query = query.replace(/^(un |una |el |la |los |las )/, '');
+            query = query.replace(/^(un |una |el |la |los |las |mi |tu |su )/, '');
 
             if (query && !query.includes('google')) {
-                this.log(`ACCEDIENDO A LA ENCICLOPEDIA GLOBAL: ${query.toUpperCase()}`);
+                this.log(`CONSULTANDO BANCOS DE MEMORIA Y RED GLOBAL: ${query.toUpperCase()}`);
+                
+                // Primero: Intentar buscar en la memoria local
+                try {
+                    const memRes = await fetch(`/api/memory/search?q=${encodeURIComponent(query)}`);
+                    const memData = await memRes.json();
+                    if (memData.found) {
+                        return `Según mis registros de memoria: ${memData.value}.`;
+                    }
+                } catch(e) { }
+
+                // Fallback: Wikipedia
                 return await this.fetchGlobalData(query);
             }
         }

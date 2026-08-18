@@ -324,6 +324,71 @@ while ($listener.IsListening) {
         continue
     }
 
+    if ($path.StartsWith("api/memory/save")) {
+        $query = [System.Web.HttpUtility]::ParseQueryString($request.Url.Query)
+        $key = $query["key"]
+        $val = $query["value"]
+        
+        $memFile = Join-Path $PSScriptRoot "kairi_memory.json"
+        try {
+            $memData = @{}
+            if (Test-Path $memFile) {
+                $memData = Get-Content $memFile -Raw | ConvertFrom-Json
+            }
+            $k = $key.ToLower().Trim()
+            $memData | Add-Member -MemberType NoteProperty -Name $k -Value $val -Force
+            $memData | ConvertTo-Json -Depth 10 | Set-Content $memFile -Encoding UTF8
+            $json = '{"status":"success", "message":"Memoria guardada."}'
+        } catch {
+            $json = '{"status":"error", "message":"No se pudo escribir en el cortex de memoria."}'
+        }
+        $buffer = [System.Text.Encoding]::UTF8.GetBytes($json)
+        $response.ContentType = "application/json"
+        $response.ContentLength64 = $buffer.Length
+        $response.OutputStream.Write($buffer, 0, $buffer.Length)
+        $response.Close()
+        continue
+    }
+
+    if ($path.StartsWith("api/memory/search")) {
+        $query = [System.Web.HttpUtility]::ParseQueryString($request.Url.Query)
+        $q = $query["q"].ToLower().Trim()
+        
+        $memFile = Join-Path $PSScriptRoot "kairi_memory.json"
+        try {
+            if (Test-Path $memFile) {
+                $memData = Get-Content $memFile -Raw | ConvertFrom-Json
+                $matchKey = $null
+                $matchVal = $null
+                
+                foreach ($prop in $memData.psobject.properties) {
+                    if ($prop.name -match $q -or $q -match $prop.name) {
+                        $matchKey = $prop.name
+                        $matchVal = $prop.value
+                        break
+                    }
+                }
+                
+                if ($matchKey) {
+                    $matchVal = $matchVal -replace '"', '\"'
+                    $json = '{"status":"success", "found":true, "value":"' + $matchVal + '"}'
+                } else {
+                    $json = '{"status":"success", "found":false}'
+                }
+            } else {
+                $json = '{"status":"success", "found":false}'
+            }
+        } catch {
+            $json = '{"status":"error", "message":"No se pudo acceder a la memoria."}'
+        }
+        $buffer = [System.Text.Encoding]::UTF8.GetBytes($json)
+        $response.ContentType = "application/json"
+        $response.ContentLength64 = $buffer.Length
+        $response.OutputStream.Write($buffer, 0, $buffer.Length)
+        $response.Close()
+        continue
+    }
+
     if ($path.StartsWith("api/volume")) {
         $query = [System.Web.HttpUtility]::ParseQueryString($request.Url.Query)
         $action = $query["action"]
