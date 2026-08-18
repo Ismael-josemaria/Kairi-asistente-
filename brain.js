@@ -1142,6 +1142,14 @@ class AntigravityCore {
                 }
             },
             {
+                patterns: ['modo cine', 'activa el modo cine', 'modo cinematografico', 'prepara pelicula', 'modo película'],
+                handler: async () => {
+                    this.log("ACTIVANDO MODO CINE...");
+                    try { await fetch('/api/cinema'); return "Modo cinematográfico activado. Entorno optimizado y recursos redirigidos."; }
+                    catch (e) { return "Error puente host."; }
+                }
+            },
+            {
                 patterns: ['apaga el ordenador', 'apaga el pc', 'apaga el sistema', 'inicia apagado del sistema'],
                 handler: async () => {
                     this.state = 'confirm_shutdown';
@@ -2511,6 +2519,43 @@ class AntigravityCore {
                 }
             } catch (e) {
                 return 'Los sensores atmosféricos están fuera de línea en este momento, señor.';
+            }
+        }
+        
+        // 6.b Brillo de la pantalla (v2.1)
+        const brightnessMatch = text.match(/brillo al (\d+)|pon el brillo al (\d+)/);
+        if (brightnessMatch) {
+            const level = brightnessMatch[1] || brightnessMatch[2];
+            try {
+                await fetch('/api/brightness?level=' + level);
+                return `Brillo de los monitores ajustado al ${level} por ciento.`;
+            } catch(e) {}
+        }
+        
+        // 6.c Lanzador Universal de Aplicaciones (v2.1)
+        const appMatch = text.match(/abre la aplicaci[oó]n (.*)|inicia el programa (.*)|abre (.*)/);
+        if (appMatch) {
+            let appName = appMatch.slice(1).find(m => m !== undefined);
+            if (appName && !['chrome', 'youtube', 'whatsapp', 'google', 'gmail', 'calculadora', 'bloc de notas', 'notepad'].includes(appName.toLowerCase())) {
+                if (appName.toLowerCase() === 'spotify') appName = "spotify";
+                else if (appName.toLowerCase() === 'word') appName = "winword";
+                else if (appName.toLowerCase() === 'excel') appName = "excel";
+                else if (appName.toLowerCase() === 'powerpoint') appName = "powerpnt";
+                try {
+                    await fetch('/api/launch_generic?app=' + encodeURIComponent(appName));
+                    return `Protocolo de inicio enviado. Ejecutando ${appName} en el sistema host.`;
+                } catch(e) {}
+            }
+        }
+        
+        // 6.d Alarmas (v2.1)
+        const alarmMatch = text.match(/alarma a las (\d+)(?: y | con )?(\d+)?|despi[eé]rtame a las (\d+)(?: y | con )?(\d+)?/);
+        if (alarmMatch) {
+            let hour = parseInt(alarmMatch[1] || alarmMatch[3]);
+            let min = parseInt(alarmMatch[2] || alarmMatch[4] || 0);
+            if (window.setAlarm) {
+                window.setAlarm(hour, min);
+                return `Alarma configurada. Le avisaré a las ${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}, señor.`;
             }
         }
 

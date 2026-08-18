@@ -576,9 +576,47 @@ window.startTimer = function(seconds) {
             timerDiv.innerHTML = `⏳ ${m}:${s.toString().padStart(2, '0')}`;
         }
     }, 1000);
+    }, 1000);
 };
 
+// --- GESTIÓN DE ALARMAS EXACTAS (v2.1) ---
+window.setAlarm = function(hour, minute) {
+    const alarmDiv = document.createElement('div');
+    alarmDiv.style.position = 'absolute';
+    alarmDiv.style.top = '80px';
+    alarmDiv.style.left = '50%';
+    alarmDiv.style.transform = 'translateX(-50%)';
+    alarmDiv.style.background = 'rgba(0, 50, 100, 0.9)';
+    alarmDiv.style.border = '2px solid #00f3ff';
+    alarmDiv.style.boxShadow = '0 0 20px #00f3ff';
+    alarmDiv.style.color = '#00f3ff';
+    alarmDiv.style.padding = '10px 20px';
+    alarmDiv.style.fontSize = '1.2rem';
+    alarmDiv.style.fontFamily = 'monospace';
+    alarmDiv.style.borderRadius = '10px';
+    alarmDiv.style.zIndex = '9998';
+    alarmDiv.innerHTML = `⏰ Alarma fijada: ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    document.body.appendChild(alarmDiv);
 
+    const interval = setInterval(() => {
+        const now = new Date();
+        if (now.getHours() === hour && now.getMinutes() === minute) {
+            clearInterval(interval);
+            alarmDiv.innerHTML = '🚨 ¡ALARMA: HORA ESTABLECIDA! 🚨';
+            alarmDiv.style.background = 'rgba(100, 0, 0, 0.9)';
+            alarmDiv.style.color = '#f00';
+            alarmDiv.style.borderColor = '#f00';
+            alarmDiv.style.boxShadow = '0 0 40px #f00';
+            if (window.playSFX) window.playSFX('alarm'); // Need to implement 'alarm' in playSFX
+            if (window.speechSynthesis) {
+                const u = new SpeechSynthesisUtterance("Atención. Su alarma programada está sonando.");
+                u.lang = 'es-ES';
+                window.speechSynthesis.speak(u);
+            }
+            setTimeout(() => alarmDiv.remove(), 10000);
+        }
+    }, 15000); // Comprobar cada 15 segundos
+};
 async function processCommand(command) {
     statusText.textContent = 'Procesando lógicas internas...';
     

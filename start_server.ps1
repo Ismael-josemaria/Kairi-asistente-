@@ -253,6 +253,61 @@ while ($listener.IsListening) {
         continue
     }
 
+    if ($path.StartsWith("api/brightness")) {
+        $query = [System.Web.HttpUtility]::ParseQueryString($request.Url.Query)
+        $level = $query["level"]
+        try {
+            $levelInt = [int]$level
+            if ($levelInt -lt 0) { $levelInt = 0 }
+            if ($levelInt -gt 100) { $levelInt = 100 }
+            $wmi = Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods
+            if ($wmi) { $wmi | Invoke-WmiMethod -Name WmiSetBrightness -ArgumentList 1, $levelInt | Out-Null }
+            $json = '{"status":"success", "message":"Brillo ajustado al ' + $levelInt + '%"}'
+        } catch {
+            $json = '{"status":"error", "message":"No se pudo ajustar el brillo (quizas no es un portátil)."}'
+        }
+        $buffer = [System.Text.Encoding]::UTF8.GetBytes($json)
+        $response.ContentType = "application/json"
+        $response.ContentLength64 = $buffer.Length
+        $response.OutputStream.Write($buffer, 0, $buffer.Length)
+        $response.Close()
+        continue
+    }
+
+    if ($path.StartsWith("api/launch_generic")) {
+        $query = [System.Web.HttpUtility]::ParseQueryString($request.Url.Query)
+        $app = $query["app"]
+        try {
+            Start-Process $app -ErrorAction Stop
+            $json = '{"status":"success", "message":"Aplicación iniciada: ' + $app + '"}'
+        } catch {
+            $json = '{"status":"error", "message":"No se pudo iniciar la aplicación ' + $app + '. Verifica que esté instalada."}'
+        }
+        $buffer = [System.Text.Encoding]::UTF8.GetBytes($json)
+        $response.ContentType = "application/json"
+        $response.ContentLength64 = $buffer.Length
+        $response.OutputStream.Write($buffer, 0, $buffer.Length)
+        $response.Close()
+        continue
+    }
+
+    if ($path.StartsWith("api/cinema")) {
+        try {
+            $wmi = Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods
+            if ($wmi) { $wmi | Invoke-WmiMethod -Name WmiSetBrightness -ArgumentList 1, 30 | Out-Null }
+            Stop-Process -Name "msedge", "brave", "firefox" -Force -ErrorAction SilentlyContinue
+            $json = '{"status":"success", "message":"Modo Cine activado."}'
+        } catch {
+            $json = '{"status":"error", "message":"Error al activar Modo Cine."}'
+        }
+        $buffer = [System.Text.Encoding]::UTF8.GetBytes($json)
+        $response.ContentType = "application/json"
+        $response.ContentLength64 = $buffer.Length
+        $response.OutputStream.Write($buffer, 0, $buffer.Length)
+        $response.Close()
+        continue
+    }
+
     if ($path.StartsWith("api/volume")) {
         $query = [System.Web.HttpUtility]::ParseQueryString($request.Url.Query)
         $action = $query["action"]
