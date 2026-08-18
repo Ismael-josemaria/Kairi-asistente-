@@ -253,15 +253,41 @@ window.setTheme = function(themeName) {
 window.isListening = false;
 window.isSpeaking = false;
 let isContinuousMode = true;
+window.isWakeWordActive = true; // Wake Word Premium
 let isProcessing = false; // Bloquea el micro mientras piensa la respuesta
 let KAIRIVoice = null;
 let hasBooted = false;
+let watchdogTimer = null; // Reinicia el micro si se congela
+
+// Pre-cargar voces Premium
+window.speechSynthesis.onvoiceschanged = () => {
+    const voices = window.speechSynthesis.getVoices();
+    KAIRIVoice = voices.find(v => v.lang.includes('es') && (v.name.includes('Sabina') || v.name.includes('Helena') || v.name.includes('Google'))) || voices.find(v => v.lang.includes('es')) || null;
+};
 
 // Reactive HUD (Sincronización visual con voz manejada 100% por CSS para que sea más fluida)
 function startHudPulse() {
     // La animación ahora es 100% manejada por la clase .speaking en style.css
     // Esto evita los "parones" que causaba actualizar el DOM cada 80ms e interrumpir las animaciones orgánicas
 }
+
+// Botón de Wake Word
+document.addEventListener("DOMContentLoaded", () => {
+    const btnWake = document.getElementById('btn-wakeword');
+    if (btnWake) {
+        btnWake.addEventListener('click', () => {
+            window.isWakeWordActive = !window.isWakeWordActive;
+            if (window.isWakeWordActive) {
+                btnWake.textContent = 'WAKE WORD ("Kairi"): ON';
+                btnWake.className = 'home-btn active';
+                if(window.playSFX) window.playSFX('start');
+            } else {
+                btnWake.textContent = 'WAKE WORD: OFF (Escucha Libre)';
+                btnWake.className = 'home-btn';
+            }
+        });
+    }
+});
 
 if (SpeechRecognition) {
     recognition = new SpeechRecognition();
@@ -298,6 +324,7 @@ if (SpeechRecognition) {
 
     recognition.onstart = () => {
         isListening = true;
+        clearTimeout(watchdogTimer);
         // Solo actualizamos la interfaz a 'escuchando' si KAIRI no está ocupado
         if (!isSpeaking && !isProcessing) {
             hud.className = 'hud-container listening';
@@ -306,6 +333,7 @@ if (SpeechRecognition) {
     };
 
     recognition.onresult = (event) => {
+        clearTimeout(watchdogTimer);
         if (isSpeaking || isProcessing) {
             clearTimeout(captureTimeout);
             return; // Ignora el propio audio o si está pensando
@@ -333,16 +361,18 @@ if (SpeechRecognition) {
             const timeToWait = 1000;
 
             captureTimeout = setTimeout(() => {
-                // Wake Word Logic: Solo procesa si dice "KAIRI" o "kairi"
-                if (!rawText.includes("kairi") && isContinuousMode) {
-                    // Silencioso, seguimos escuchando
-                    return; 
+                // Wake Word Logic: Solo procesa si empieza por "KAIRI" si está activado
+                if (window.isWakeWordActive) {
+                    if (!rawText.startsWith("kairi")) {
+                        userText.textContent = `Tú (ignorado): "${rawText}"`;
+                        return; // Silencioso, seguimos escuchando
+                    }
                 }
                 
-                if (window.playSFX) window.playSFX('start');
+                if (window.playSFX) window.playSFX('process');
                 
-                // Limpiamos la palabra de activación (puede estar al principio o al final)
-                const cleanCommand = rawText.replace(/kairi/g, '').trim() || 'hola';
+                // Limpiamos la palabra de activación del inicio
+                const cleanCommand = rawText.replace(/^kairi/g, '').trim() || 'hola';
 
                 isListening = false;
                 isProcessing = true;
