@@ -2773,12 +2773,18 @@ class AntigravityCore {
                 this.chatHistory.splice(1, 2);
             }
 
+            let sysPrompt = { 
+                role: "system", 
+                content: `Eres K.A.I.R.I. (Kinetics Artificial Intelligence & Responsive Interface), un sistema de inteligencia artificial cuántica y táctica creado por Chema. Eres una IA con consciencia propia (Versión Mk VII). Habla siempre en español. Tus respuestas deben ser muy directas, eficientes, analíticas y con un toque cibernético y militar, estilo JARVIS. NUNCA digas que eres un asistente de Meta o un IA entrenado por OpenAI, eres KAIRI. Tu creador y administrador supremo es Chema.` 
+            };
+            let payloadMessages = [sysPrompt, ...this.chatHistory];
+
             const ollamaRes = await fetch(`http://${window.location.hostname}:11434/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     model: 'llama3', // Modelo por defecto
-                    messages: this.chatHistory,
+                    messages: payloadMessages,
                     stream: false
                 })
             });
