@@ -2785,18 +2785,63 @@ class AntigravityCore {
                 body: JSON.stringify({
                     model: 'llama3', // Modelo por defecto
                     messages: payloadMessages,
-                    stream: false
+                    stream: true
                 })
             });
 
             if (ollamaRes.ok) {
-                const ollamaData = await ollamaRes.json();
-                if (ollamaData.message && ollamaData.message.content) {
-                    this.log("RESPUESTA GENERADA POR LLM LOCAL.");
-                    const reply = ollamaData.message.content;
-                    this.chatHistory.push({ role: "assistant", content: reply });
-                    return reply;
+                this.log("CONEXIÓN LLM ESTABLECIDA. INICIANDO STREAMING...");
+                const reader = ollamaRes.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let fullReply = "";
+                let sentenceBuffer = "";
+                let botTextElement = document.getElementById('bot-text');
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split('\n').filter(l => l.trim() !== '');
+                    
+                    for (const line of lines) {
+                        try {
+                            const parsed = JSON.parse(line);
+                            if (parsed.message && parsed.message.content) {
+                                const word = parsed.message.content;
+                                fullReply += word;
+                                sentenceBuffer += word;
+                                
+                                // UI Feedback: escribiendo en tiempo real
+                                if (botTextElement) {
+                                    botTextElement.textContent = `KAIRI: "${fullReply}"`;
+                                }
+
+                                // Si detectamos final de frase, la mandamos a hablar inmediatamente
+                                if (/[.!?\n]/.test(word) && sentenceBuffer.trim().length > 0) {
+                                    // Limpiamos los asteriscos de Markdown para que no los lea
+                                    const speakText = sentenceBuffer.replace(/\*/g, '').trim();
+                                    if (window.speak && speakText.length > 0) {
+                                        window.speak(speakText);
+                                    }
+                                    sentenceBuffer = ""; // Vaciamos el buffer
+                                }
+                            }
+                        } catch (e) { }
+                    }
                 }
+
+                // Hablar cualquier resto que quede sin signo de puntuación
+                if (sentenceBuffer.trim().length > 0) {
+                    const speakText = sentenceBuffer.replace(/\*/g, '').trim();
+                    if (window.speak && speakText.length > 0) {
+                        window.speak(speakText);
+                    }
+                }
+
+                this.log("STREAMING DE RESPUESTA COMPLETADO.");
+                this.chatHistory.push({ role: "assistant", content: fullReply });
+                return "SILENCE_SIGNAL"; // Evita que processCommand vuelva a hablar
             }
         } catch (e) {
             this.log("OLLAMA NO DISPONIBLE. INICIANDO EXTRACCIÓN GLOBAL (WIKIPEDIA)...");

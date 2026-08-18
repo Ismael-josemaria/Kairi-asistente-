@@ -361,9 +361,9 @@ if (SpeechRecognition) {
             const timeToWait = 1000;
 
             captureTimeout = setTimeout(() => {
-                // Wake Word Logic: Solo procesa si empieza por "KAIRI" si está activado
+                // Wake Word Logic: Solo procesa si contiene "kairi" si está activado
                 if (window.isWakeWordActive) {
-                    if (!rawText.startsWith("kairi")) {
+                    if (!rawText.includes("kairi")) {
                         userText.textContent = `Tú (ignorado): "${rawText}"`;
                         return; // Silencioso, seguimos escuchando
                     }
@@ -371,8 +371,8 @@ if (SpeechRecognition) {
 
                 if (window.playSFX) window.playSFX('process');
 
-                // Limpiamos la palabra de activación del inicio
-                const cleanCommand = rawText.replace(/^kairi/g, '').trim() || 'hola';
+                // Limpiamos la palabra de activación y todo lo anterior
+                const cleanCommand = rawText.replace(/.*kairi\s*/g, '').trim() || 'hola';
 
                 isListening = false;
                 isProcessing = true;
@@ -436,10 +436,19 @@ hud.addEventListener('click', async () => {
 
     if (!SpeechRecognition) return;
 
+    // INTERRUPCIÓN TÁCTICA (Mk VIII)
+    if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        isSpeaking = false;
+        hudLog("INTERRUPCIÓN TÁCTICA: VOZ CANCELADA");
+        try { recognition.start(); } catch(e){}
+        return;
+    }
+
     // Secuencia de arranque automática (Primera vez)
     if (!hasBooted) {
         hasBooted = true;
-        hudLog("INICIANDO SECUENCIA MK III...");
+        hudLog("INICIANDO SECUENCIA MK V...");
         hudLog("PUENTE DE RED... ESTABLE");
         hudLog("NÚCLEOS NEURONALES... CALIBRADOS");
         speak("Sistemas en línea. Inteligencia artificial operativa. A su entera disposición, señor.");
