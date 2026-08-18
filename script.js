@@ -364,15 +364,16 @@ if (SpeechRecognition) {
                 // Wake Word Logic: Solo procesa si contiene "kairi" si está activado
                 if (window.isWakeWordActive) {
                     if (!rawText.includes("kairi")) {
-                        userText.textContent = `Tú (ignorado): "${rawText}"`;
+                        // Eliminamos el mensaje de (ignorado) para que no moleste en pantalla, volvemos a mostrar el estado inactivo
+                        userText.textContent = ``;
                         return; // Silencioso, seguimos escuchando
                     }
                 }
 
                 if (window.playSFX) window.playSFX('process');
 
-                // Limpiamos la palabra de activación y todo lo anterior
-                const cleanCommand = rawText.replace(/.*kairi\s*/g, '').trim() || 'hola';
+                // Extraemos el comando real eliminando la palabra "kairi" (y posibles prefijos como "oye") sin borrar el resto de la frase
+                const cleanCommand = rawText.replace(/\b(?:oye\s+|hola\s+)?kairi\b/g, '').trim() || 'hola';
 
                 isListening = false;
                 isProcessing = true;
