@@ -1188,6 +1188,51 @@ class AntigravityCore {
                 }
             },
             {
+                patterns: ['escanea la red', 'quien esta conectado', 'dispositivos en la red', 'radar local'],
+                handler: async () => {
+                    this.log('INICIANDO BARRIDO DE RADAR LOCAL (ARP)...');
+                    try {
+                        const res = await fetch('/api/network_scan');
+                        const data = await res.json();
+                        if (data.status === 'success') {
+                            return `Barrido completado. Hay ${data.devices} dispositivos anómalos o dinámicos conectados a nuestra red local en este momento.`;
+                        }
+                    } catch (e) {
+                        return "El escáner de red ha fallado. Puede que no tenga permisos de administrador.";
+                    }
+                }
+            },
+            {
+                patterns: ['modo tactico', 'modo táctico', 'alerta roja', 'activa modo tactico'],
+                handler: async () => {
+                    this.log('CAMBIO DE ESQUEMA DE COLOR: TÁCTICO ROJO');
+                    document.documentElement.style.setProperty('--main-color', '#ff003c');
+                    document.documentElement.style.setProperty('--main-rgb', '255, 0, 60');
+                    document.documentElement.style.setProperty('--bg-dark-rgb', '40, 0, 10');
+                    return "Modo táctico activado. Sistemas de alerta máxima en línea.";
+                }
+            },
+            {
+                patterns: ['modo hacker', 'modo matrix', 'esquema verde'],
+                handler: async () => {
+                    this.log('CAMBIO DE ESQUEMA DE COLOR: HACKER VERDE');
+                    document.documentElement.style.setProperty('--main-color', '#00ff00');
+                    document.documentElement.style.setProperty('--main-rgb', '0, 255, 0');
+                    document.documentElement.style.setProperty('--bg-dark-rgb', '0, 20, 0');
+                    return "Protocolo de infiltración cargado. Bienvenido a la Matrix, señor.";
+                }
+            },
+            {
+                patterns: ['modo stark', 'restaura el sistema', 'vuelve a la normalidad', 'modo normal'],
+                handler: async () => {
+                    this.log('CAMBIO DE ESQUEMA DE COLOR: STARK AZUL');
+                    document.documentElement.style.setProperty('--main-color', '#00f3ff');
+                    document.documentElement.style.setProperty('--main-rgb', '0, 243, 255');
+                    document.documentElement.style.setProperty('--bg-dark-rgb', '0, 20, 40');
+                    return "Esquema visual restaurado a los parámetros por defecto.";
+                }
+            },
+            {
                 patterns: ['explora la carpeta', 'lee la carpeta', 'que hay en la ruta', 'qué hay en la ruta', 'abre la ruta', 'abre la carpeta', 'explora el disco'],
                 handler: async (text) => {
                     let pathMatch = text.match(/(?:explora la carpeta|lee la carpeta|que hay en la ruta|abre la ruta|abre la carpeta|explora el disco) (.*)/);
@@ -2500,8 +2545,16 @@ class AntigravityCore {
         if (musicMatch) {
             const artist = musicMatch.slice(1).find(m => m !== undefined);
             if (artist && !artist.includes('hora') && !artist.includes('fecha') && !artist.includes('temporizador')) {
-                window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(artist)}`, '_blank');
-                return `Abriendo YouTube y preparando los sistemas de audio para reproducir ${artist}.`;
+                if (text.includes('spotify')) {
+                    const cleanArtist = artist.replace(/ en spotify/g, '').trim();
+                    try {
+                        await fetch(`/api/launch_generic?app=spotify:search:${encodeURIComponent(cleanArtist)}`);
+                        return `Abriendo Spotify y buscando la música de ${cleanArtist}, señor.`;
+                    } catch(e) {}
+                } else {
+                    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(artist)}`, '_blank');
+                    return `Abriendo YouTube y preparando los sistemas de audio para reproducir ${artist}.`;
+                }
             }
         }
 

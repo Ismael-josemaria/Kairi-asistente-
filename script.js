@@ -23,14 +23,14 @@ function hudLog(msg) {
     const logs = document.getElementById('sys-logs');
     if (!logs) return;
     const p = document.createElement('p');
-    
+
     // Obtener la hora actual en formato [HH:MM:SS]
     const now = new Date();
     const time = now.toLocaleTimeString('es-ES', { hour12: false });
-    
+
     p.textContent = `[${time}] ${msg}`;
     logs.appendChild(p);
-    
+
     // Mantener un máximo de 25 mensajes en pantalla
     if (logs.childNodes.length > 25) {
         logs.removeChild(logs.firstChild);
@@ -52,13 +52,13 @@ async function setupAudioVisualizer() {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioContext.createAnalyser();
         microphone = audioContext.createMediaStreamSource(stream);
-        
+
         analyser.fftSize = 256;
         const bufferLength = analyser.frequencyBinCount;
         visualizerDataArray = new Uint8Array(bufferLength);
-        
+
         microphone.connect(analyser);
-        
+
         hudLog('MÓDULO DE RECONOCIMIENTO ACÚSTICO ENLAZADO');
         renderVisualizer();
     } catch (e) {
@@ -69,24 +69,24 @@ async function setupAudioVisualizer() {
 function renderVisualizer() {
     requestAnimationFrame(renderVisualizer);
     if (!analyser || window.isSpeaking) return; // Si la IA está hablando, no alterar el HUD con nuestra voz
-    
+
     analyser.getByteFrequencyData(visualizerDataArray);
-    
+
     // Calcular volumen promedio (simplificado)
     let sum = 0;
     for (let i = 0; i < visualizerDataArray.length; i++) {
         sum += visualizerDataArray[i];
     }
     const average = sum / visualizerDataArray.length;
-    
+
     // Escalar el núcleo
     const scale = 1 + (average / 256) * 0.4; // max scale ~ 1.4
-    
+
     const core = document.querySelector('.hud-core');
     const ring1 = document.querySelector('.ring-1');
     const ring2 = document.querySelector('.ring-2');
     const ring3 = document.querySelector('.ring-3');
-    
+
     if (core && ring1 && ring2 && ring3) {
         // Solo palpitar si hay algo de ruido, si no volver a normal
         if (average > 10) {
@@ -127,10 +127,10 @@ updateClock();
 // --- VIDA AUTÓNOMA (BACKGROUND LOOP) ---
 async function autonomousThoughts() {
     // Ejecutar de forma aleatoria cada 1.5 a 3 minutos
-    const actualTimeout = Math.floor(Math.random() * (180000 - 90000 + 1)) + 90000; 
+    const actualTimeout = Math.floor(Math.random() * (180000 - 90000 + 1)) + 90000;
     setTimeout(async () => {
         if (typeof hudLog === 'function') {
-            
+
             // Decidir si hacer una tarea REAL (acceder a info de la PC) o SIMULADA
             if (Math.random() < 0.6) {
                 // TAREA REAL
@@ -161,7 +161,7 @@ async function autonomousThoughts() {
                             }
                         }
                     }
-                } catch(e) {
+                } catch (e) {
                     hudLog(`[AUTO-DIAGNÓSTICO] Revisando protocolos internos locales...`);
                 }
             } else {
@@ -175,20 +175,20 @@ async function autonomousThoughts() {
                         const pageId = Object.keys(pages)[0];
                         const title = pages[pageId].title;
                         let extract = pages[pageId].extract || "";
-                        
+
                         // Limpiar y resumir
                         extract = extract.replace(/\s*\(.*?\)\s*/g, ' ');
                         let sentences = extract.split('. ');
-                        let summary = sentences[0]; 
-                        
+                        let summary = sentences[0];
+
                         hudLog(`[CONOCIMIENTO ADQUIRIDO] Tema: ${title}`);
-                        
+
                         // 30% de probabilidad de hablar sobre lo que acaba de aprender
                         if (Math.random() < 0.3 && summary && !isSpeaking && !isListening) {
                             speak(`Señor, he estado leyendo la red mientras trabajaba y he aprendido sobre ${title}. ¿Sabía que ${summary}? Mis bases de datos siguen expandiéndose de forma autónoma.`);
                         }
                     }
-                } catch(e) {
+                } catch (e) {
                     // Fallback
                     const logT = "Limpiando temporales y desfragmentando disco virtual...";
                     hudLog(`[AUTO-DIAGNÓSTICO] ${logT}`);
@@ -224,7 +224,7 @@ function typeWriter(element, text, speed = 30) {
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition;
 // --- GESTIÓN DE TEMAS VISUALES ---
-window.setTheme = function(themeName) {
+window.setTheme = function (themeName) {
     const root = document.documentElement;
     if (themeName === 'rojo') {
         root.style.setProperty('--main-color', '#ff3333');
@@ -280,7 +280,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (window.isWakeWordActive) {
                 btnWake.textContent = 'WAKE WORD ("Kairi"): ON';
                 btnWake.className = 'home-btn active';
-                if(window.playSFX) window.playSFX('start');
+                if (window.playSFX) window.playSFX('start');
             } else {
                 btnWake.textContent = 'WAKE WORD: OFF (Escucha Libre)';
                 btnWake.className = 'home-btn';
@@ -296,13 +296,13 @@ if (SpeechRecognition) {
     recognition.interimResults = true;
 
     // SFX Engine (Beeps de KAIRI)
-    window.playSFX = function(type) {
+    window.playSFX = function (type) {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
-        
+
         if (type === 'start') {
             oscillator.type = 'sine';
             oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
@@ -368,9 +368,9 @@ if (SpeechRecognition) {
                         return; // Silencioso, seguimos escuchando
                     }
                 }
-                
+
                 if (window.playSFX) window.playSFX('process');
-                
+
                 // Limpiamos la palabra de activación del inicio
                 const cleanCommand = rawText.replace(/^kairi/g, '').trim() || 'hola';
 
@@ -393,7 +393,7 @@ if (SpeechRecognition) {
         } else {
             statusText.textContent = `Error del micrófono: ${event.error}`;
         }
-        
+
         // Solo quitamos la clase listening si no está haciendo otra cosa
         if (!isSpeaking && !isProcessing) {
             hud.className = 'hud-container';
@@ -408,18 +408,18 @@ if (SpeechRecognition) {
             setTimeout(() => {
                 try {
                     recognition.start();
-                } catch(e) { }
+                } catch (e) { }
             }, 500);
         } else if (!isContinuousMode && !isSpeaking && !isProcessing) {
             hud.className = 'hud-container';
         }
     };
-    
+
     // WATCHDOG: Reinicio forzado si el navegador tumba el micro en silencio
     setInterval(() => {
         if (isContinuousMode && !isListening && !isSpeaking && !isProcessing) {
             console.warn("Watchdog: Reconocimiento de voz caído. Forzando reinicio...");
-            try { recognition.start(); } catch(e) {}
+            try { recognition.start(); } catch (e) { }
         }
     }, 3000);
 } else {
@@ -435,7 +435,7 @@ hud.addEventListener('click', async () => {
     }
 
     if (!SpeechRecognition) return;
-    
+
     // Secuencia de arranque automática (Primera vez)
     if (!hasBooted) {
         hasBooted = true;
@@ -444,10 +444,10 @@ hud.addEventListener('click', async () => {
         hudLog("NÚCLEOS NEURONALES... CALIBRADOS");
         speak("Sistemas en línea. Inteligencia artificial operativa. A su entera disposición, señor.");
     }
-    
+
     if (isContinuousMode) {
         isContinuousMode = false;
-        try { recognition.abort(); } catch(e) {}
+        try { recognition.abort(); } catch (e) { }
         isListening = false;
         window.speechSynthesis.cancel();
         hud.className = 'hud-container';
@@ -455,7 +455,7 @@ hud.addEventListener('click', async () => {
     } else {
         isContinuousMode = true;
         window.speechSynthesis.cancel();
-        try { recognition.start(); } catch(e) {}
+        try { recognition.start(); } catch (e) { }
     }
 });
 
@@ -467,7 +467,7 @@ hud.addEventListener('dblclick', async () => {
             await window.brain.saveProjectHandle(handle);
             speak('Acceso al sistema de archivos concedido. Ahora puedo gestionar sus proyectos personales.');
         }
-    } catch(e) {
+    } catch (e) {
         console.error(e);
         speak('Autorización de acceso denegada o cancelada por el usuario.');
     }
@@ -487,22 +487,22 @@ function speak(text) {
     // Prevención de bloqueo TTS (Garbage collection bug in Chrome)
     window.speechSynthesis.cancel();
     window.speechSynthesis.resume();
-    
+
     isSpeaking = true;
     hud.className = 'hud-container speaking';
-    
+
     // Iniciar pulsaciones holográficas
     startHudPulse();
-    
+
     // APAGAR EL MICRO MIENTRAS HABLA PARA EVITAR QUE SE ESCUCHE A SÍ MISMO
-    try { recognition.stop(); } catch(e) {}
+    try { recognition.stop(); } catch (e) { }
     isListening = false;
-    
+
     typeWriter(KAIRIText, `KAIRI: ${text}`, 30);
     statusText.textContent = 'Sintetizando voz local...';
 
     const utterance = new SpeechSynthesisUtterance(text);
-    
+
     if (KAIRIVoice) {
         utterance.voice = KAIRIVoice;
     } else {
@@ -510,7 +510,7 @@ function speak(text) {
         // Prefer a Spanish female voice: Microsoft Sabina, Microsoft Helena, Google español
         utterance.voice = voices.find(v => v.lang.includes('es') && (v.name.includes('Sabina') || v.name.includes('Helena') || v.name.includes('Google'))) || voices.find(v => v.lang.includes('es')) || null;
     }
-    
+
     utterance.lang = 'es-ES';
     // KAIRI is female, so pitch is higher (1.3) and rate slightly faster (1.1)
     utterance.pitch = window.KAIRIVoiceSettings ? window.KAIRIVoiceSettings.pitch : 1.3;
@@ -523,7 +523,7 @@ function speak(text) {
             if (isContinuousMode) {
                 statusText.textContent = 'Analizando comandos de voz...';
                 // ENCENDER EL MICRO UNA VEZ QUE HA TERMINADO DE HABLAR
-                try { recognition.start(); } catch(e) {}
+                try { recognition.start(); } catch (e) { }
             } else {
                 statusText.textContent = 'En espera.';
                 hud.className = 'hud-container';
@@ -534,14 +534,14 @@ function speak(text) {
     utterance.onerror = (e) => {
         console.error('Error en la síntesis de voz:', e);
         isSpeaking = false;
-        try { recognition.start(); } catch(err) {}
+        try { recognition.start(); } catch (err) { }
     };
 
-window.speechSynthesis.speak(utterance);
+    window.speechSynthesis.speak(utterance);
 }
 
 // --- TEMPORIZADOR VISUAL ---
-window.startTimer = function(seconds) {
+window.startTimer = function (seconds) {
     let timeLeft = seconds;
     const timerDiv = document.createElement('div');
     timerDiv.style.position = 'absolute';
@@ -568,7 +568,7 @@ window.startTimer = function(seconds) {
             timerDiv.style.color = '#f00';
             timerDiv.style.borderColor = '#f00';
             timerDiv.style.boxShadow = '0 0 30px #f00';
-            if (window.playSFX) window.playSFX('start'); 
+            if (window.playSFX) window.playSFX('start');
             setTimeout(() => timerDiv.remove(), 5000);
         } else {
             let m = Math.floor(timeLeft / 60);
@@ -576,11 +576,10 @@ window.startTimer = function(seconds) {
             timerDiv.innerHTML = `⏳ ${m}:${s.toString().padStart(2, '0')}`;
         }
     }, 1000);
-    }, 1000);
 };
 
 // --- GESTIÓN DE ALARMAS EXACTAS (v2.1) ---
-window.setAlarm = function(hour, minute) {
+window.setAlarm = function (hour, minute) {
     const alarmDiv = document.createElement('div');
     alarmDiv.style.position = 'absolute';
     alarmDiv.style.top = '80px';
@@ -619,12 +618,12 @@ window.setAlarm = function(hour, minute) {
 };
 async function processCommand(command) {
     statusText.textContent = 'Procesando lógicas internas...';
-    
+
     // Retroalimentación háptica (Vibración móvil)
     if (navigator.vibrate) {
         navigator.vibrate(50);
     }
-    
+
     // Pasar el comando al núcleo local construido (AntigravityCore / window.brain)
     if (window.brain) {
         try {
@@ -650,7 +649,7 @@ async function processCommand(command) {
 function setupManualInput() {
     const manualInput = document.getElementById('manual-cmd-input');
     const manualBtn = document.getElementById('manual-cmd-btn');
-    
+
     if (manualInput && manualBtn) {
         const sendManualCommand = () => {
             const text = manualInput.value.trim();
@@ -676,15 +675,15 @@ if (document.readyState === 'loading') {
 }
 
 // Inicializar Motor TTS y Permisos de Notificación
-    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-        Notification.requestPermission();
-    }
+if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+    Notification.requestPermission();
+}
 
-    window.sendDesktopNotification = function(title, body) {
-        if (Notification.permission === "granted") {
-            new Notification(title, { body: body, icon: 'favicon.ico' });
-        }
-    };
+window.sendDesktopNotification = function (title, body) {
+    if (Notification.permission === "granted") {
+        new Notification(title, { body: body, icon: 'favicon.ico' });
+    }
+};
 
 // Load voices as soon as they are ready
 window.speechSynthesis.onvoiceschanged = () => {
@@ -703,29 +702,29 @@ window.onload = async () => {
 function initParticles() {
     // Desactivar en pantallas móviles para ahorrar batería y recursos
     if (window.innerWidth <= 768) return;
-    
+
     const canvas = document.getElementById('particles-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
-    
+
     let particles = [];
     const particleCount = 80;
-    
+
     // Variables Matrix
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*";
     const fontSize = 16;
     let columns = Math.floor(width / fontSize);
     let drops = [];
-    for(let x = 0; x < columns; x++) drops[x] = 1;
+    for (let x = 0; x < columns; x++) drops[x] = 1;
 
     window.addEventListener('resize', () => {
         width = canvas.width = window.innerWidth;
         height = canvas.height = window.innerHeight;
         columns = Math.floor(width / fontSize);
         drops = [];
-        for(let x = 0; x < columns; x++) drops[x] = 1;
+        for (let x = 0; x < columns; x++) drops[x] = 1;
     });
 
     class Particle {
@@ -758,15 +757,15 @@ function initParticles() {
             // Efecto Lluvia Matrix
             ctx.fillStyle = 'rgba(0, 15, 0, 0.1)';
             ctx.fillRect(0, 0, width, height);
-            
+
             ctx.fillStyle = '#0F0';
             ctx.font = fontSize + 'px monospace';
-            
-            for(let i = 0; i < drops.length; i++) {
+
+            for (let i = 0; i < drops.length; i++) {
                 const text = chars.charAt(Math.floor(Math.random() * chars.length));
                 ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                
-                if(drops[i] * fontSize > height && Math.random() > 0.975) {
+
+                if (drops[i] * fontSize > height && Math.random() > 0.975) {
                     drops[i] = 0;
                 }
                 drops[i]++;
@@ -790,22 +789,22 @@ function initParticles() {
 
             for (let i = 0; i < particleCount; i++) {
                 particles[i].update();
-                
+
                 ctx.beginPath();
                 ctx.arc(particles[i].x, particles[i].y, particles[i].radius, 0, Math.PI * 2);
                 ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.5)`;
                 ctx.fill();
-                
+
                 for (let j = i + 1; j < particleCount; j++) {
                     const dx = particles[i].x - particles[j].x;
                     const dy = particles[i].y - particles[j].y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    
+
                     if (dist < 120) {
                         ctx.beginPath();
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${1 - dist/120})`;
+                        ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${1 - dist / 120})`;
                         ctx.lineWidth = 0.5;
                         ctx.stroke();
                     }
@@ -821,7 +820,7 @@ function initParticles() {
 function initWireframeSphere() {
     const sphereContainer = document.getElementById('wireframe-sphere');
     if (!sphereContainer) return;
-    
+
     // Generar Meridianos (Verticales)
     const meridianCount = 18;
     for (let i = 0; i < meridianCount; i++) {
@@ -838,13 +837,13 @@ function initWireframeSphere() {
     for (let i = 1; i < parallelCount; i++) {
         const ring = document.createElement('div');
         ring.className = 'wireframe-parallel';
-        
+
         // Calcular la posición y tamaño del paralelo basado en trigonometría
         // para que dibuje una esfera perfecta.
-        const theta = (Math.PI / parallelCount) * i; 
+        const theta = (Math.PI / parallelCount) * i;
         const yPos = Math.cos(theta) * 200; // 200 es el radio estimado de la esfera (400px diámetro)
         const scale = Math.sin(theta);
-        
+
         ring.style.transform = `translateY(${yPos}px) rotateX(90deg) scale(${scale})`;
         sphereContainer.appendChild(ring);
     }
@@ -883,10 +882,10 @@ let telemetryChart;
 function initTelemetryChart() {
     const ctx = document.getElementById('telemetryChart');
     if (!ctx) return;
-    
+
     Chart.defaults.color = 'rgba(0, 243, 255, 0.7)';
     Chart.defaults.font.family = "'Share Tech Mono', monospace";
-    
+
     telemetryChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -948,26 +947,26 @@ function initTelemetryChart() {
 
 async function updateTelemetryData() {
     if (!telemetryChart) return;
-    
+
     const cpuData = telemetryChart.data.datasets[0].data;
     const ramData = telemetryChart.data.datasets[1].data;
-    
+
     try {
         const res = await fetch('/api/stats');
         const data = await res.json();
-        
+
         if (data.status === 'success') {
             // Desplazar datos antiguos
             cpuData.shift();
             ramData.shift();
-            
+
             // Insertar datos reales
             cpuData.push(Math.round(data.cpu_percent));
             ramData.push(Math.round(data.ram_percent));
-            
+
             telemetryChart.update('none'); // Update sin animación pesada
         }
-    } catch(e) {
+    } catch (e) {
         // En caso de fallo (puente apagado), podemos usar el comportamiento anterior o simplemente no actualizar
     }
 }
@@ -988,7 +987,7 @@ function setupWidgets() {
     const spotifyInput = document.getElementById('spotify-input');
     const spotifySaveBtn = document.getElementById('spotify-save-btn');
     const spotifyIframe = document.getElementById('spotify-iframe');
-    
+
     const savedSpotifyUrl = localStorage.getItem('KAIRI_spotify_url');
     if (savedSpotifyUrl && spotifyIframe) {
         spotifyIframe.src = savedSpotifyUrl;
@@ -1026,7 +1025,7 @@ function setupWidgets() {
             const ethEl = document.getElementById('hud-eth');
             if (btcEl && data.bitcoin) btcEl.innerText = `BTC: $${data.bitcoin.usd.toLocaleString()}`;
             if (ethEl && data.ethereum) ethEl.innerText = `ETH: $${data.ethereum.usd.toLocaleString()}`;
-        } catch(e) {
+        } catch (e) {
             console.error("Error loading crypto:", e);
         }
     }
@@ -1046,7 +1045,7 @@ function setupWidgets() {
                     if (windEl) windEl.innerText = `Viento: ${weatherData.current_weather.windspeed} km/h`;
                 }
             }
-        } catch(e) {}
+        } catch (e) { }
     }
 
     if (navigator.geolocation) {
@@ -1054,17 +1053,40 @@ function setupWidgets() {
             (pos) => loadWeather(pos.coords.latitude, pos.coords.longitude),
             () => {
                 fetch('https://get.geojs.io/v1/ip/geo.json')
-                .then(r => r.json())
-                .then(d => { if(d.latitude) loadWeather(d.latitude, d.longitude); })
-                .catch(e => {});
+                    .then(r => r.json())
+                    .then(d => { if (d.latitude) loadWeather(d.latitude, d.longitude); })
+                    .catch(e => { });
             }
         );
     } else {
         fetch('https://get.geojs.io/v1/ip/geo.json')
-        .then(r => r.json())
-        .then(d => { if(d.latitude) loadWeather(d.latitude, d.longitude); })
-        .catch(e => {});
+            .then(r => r.json())
+            .then(d => { if (d.latitude) loadWeather(d.latitude, d.longitude); })
+            .catch(e => { });
     }
+    
+    // 4. Diagnostics UI (Mk V)
+    async function loadDiagnostics() {
+        try {
+            const res = await fetch('/api/sysinfo');
+            const data = await res.json();
+            if (data.status === 'success') {
+                const cpuEl = document.getElementById('hud-cpu');
+                const ramEl = document.getElementById('hud-ram');
+                const cpuBar = document.getElementById('hud-cpu-bar');
+                const ramBar = document.getElementById('hud-ram-bar');
+                
+                if (cpuEl) cpuEl.innerText = `${data.cpu}%`;
+                if (ramEl) ramEl.innerText = `${data.ram_percent}%`;
+                if (cpuBar) cpuBar.style.width = `${data.cpu}%`;
+                if (ramBar) ramBar.style.width = `${data.ram_percent}%`;
+            }
+        } catch (e) {
+            // Silently fail if server is not up
+        }
+    }
+    setInterval(loadDiagnostics, 2000); // Poll every 2s
+    loadDiagnostics();
 }
 if (document.readyState === 'loading') {
     document.addEventListener("DOMContentLoaded", setupWidgets);

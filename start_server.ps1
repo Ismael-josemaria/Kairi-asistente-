@@ -308,6 +308,22 @@ while ($listener.IsListening) {
         continue
     }
 
+    if ($path.StartsWith("api/network_scan")) {
+        try {
+            $arp = arp -a | Select-String "dinámico|dynamic"
+            $count = if ($arp) { ($arp | Measure-Object).Count } else { 0 }
+            $json = '{"status":"success", "devices":' + $count + ', "message":"' + $count + ' dispositivos detectados en la red local."}'
+        } catch {
+            $json = '{"status":"error", "message":"Fallo en el escáner de red local."}'
+        }
+        $buffer = [System.Text.Encoding]::UTF8.GetBytes($json)
+        $response.ContentType = "application/json"
+        $response.ContentLength64 = $buffer.Length
+        $response.OutputStream.Write($buffer, 0, $buffer.Length)
+        $response.Close()
+        continue
+    }
+
     if ($path.StartsWith("api/volume")) {
         $query = [System.Web.HttpUtility]::ParseQueryString($request.Url.Query)
         $action = $query["action"]
