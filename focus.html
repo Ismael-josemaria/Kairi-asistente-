@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.A.I.R.I. - Módulo Focus</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        .focus-container { max-width: 800px; margin: 50px auto; text-align: center; }
+        .focus-panel { background: rgba(0, 20, 40, 0.7); border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 15px; padding: 40px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.1); }
+        .focus-title { color: #00f3ff; font-size: 2rem; margin-bottom: 10px; text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); }
+        .focus-desc { color: #a0aec0; margin-bottom: 40px; font-size: 1.1rem; }
+        .sound-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .sound-btn { background: rgba(0, 243, 255, 0.05); border: 1px solid #00f3ff; color: #00f3ff; padding: 20px; border-radius: 8px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .sound-btn:hover { background: rgba(0, 243, 255, 0.2); box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); transform: translateY(-2px); }
+        .sound-btn.playing { background: #00f3ff; color: #000; box-shadow: 0 0 20px #00f3ff; animation: pulse-border 2s infinite; }
+        .stop-btn { margin-top: 40px; background: transparent; border: 1px solid #ff3333; color: #ff3333; padding: 15px 40px; font-size: 1.2rem; border-radius: 30px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.3s; display: none; }
+        .stop-btn:hover { background: #ff3333; color: #000; box-shadow: 0 0 20px #ff3333; }
+        @keyframes pulse-border { 0% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(0, 243, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0); } }
+        #visualizer { width: 100%; height: 60px; margin-top: 30px; display: none; }
+        
+        /* MOBILE TWEAKS */
+        @media (max-width: 768px) {
+            .focus-panel { padding: 20px; }
+            .focus-title { font-size: 1.5rem; }
+            #pomodoro-timer { font-size: 3.5rem !important; }
+            #btn-pomo-start, #btn-pomo-break, #btn-pomo-reset { font-size: 0.9rem !important; padding: 10px; width: 100%; }
+            .pomodoro-controls { flex-direction: column !important; gap: 10px !important; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>K.A.I.R.I.</h1>
+            <p>Sistemas de Aislamiento Acústico y Foco</p>
+        </div>
+
+        <div class="focus-container">
+            <div class="focus-panel">
+                <h2 class="focus-title">PROTOCOLO DE ENFOQUE</h2>
+                <p class="focus-desc">Maximiza la concentración y productividad mediante aislamiento sensorial.</p>
+                
+                <!-- POMODORO TIMER -->
+                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 40px; border-bottom: 1px solid rgba(0, 243, 255, 0.2); padding-bottom: 30px;">
+                    <div id="pomodoro-timer" style="font-size: 5rem; color: #fff; text-shadow: 0 0 20px #00f3ff; font-weight: bold; margin-bottom: 20px; font-family: 'Share Tech Mono';">25:00</div>
+                    <div class="pomodoro-controls" style="display: flex; gap: 15px;">
+                        <button id="btn-pomo-start" style="background: rgba(0, 243, 255, 0.1); border: 1px solid #00f3ff; color: #00f3ff; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-family: 'Share Tech Mono'; font-size: 1.1rem; font-weight: bold; transition: all 0.3s;">INICIAR FOCO</button>
+                        <button id="btn-pomo-break" style="background: rgba(0, 255, 136, 0.1); border: 1px solid #00ff88; color: #00ff88; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-family: 'Share Tech Mono'; font-size: 1.1rem; font-weight: bold; transition: all 0.3s;">DESCANSO (5M)</button>
+                        <button id="btn-pomo-reset" style="background: rgba(255, 51, 51, 0.1); border: 1px solid #ff3333; color: #ff3333; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-family: 'Share Tech Mono'; font-size: 1.1rem; font-weight: bold; transition: all 0.3s;">RESETEAR</button>
+                    </div>
+                </div>
+
+                <div class="sound-grid">
+                    <button class="sound-btn" id="btn-pink">LLUVIA CIBERNÉTICA<br><span style="font-size:0.8rem; opacity:0.7">(Ruido Rosa)</span></button>
+                    <button class="sound-btn" id="btn-white">AISLAMIENTO<br><span style="font-size:0.8rem; opacity:0.7">(Ruido Blanco)</span></button>
+                    <button class="sound-btn" id="btn-alpha">ESTADO ZEN<br><span style="font-size:0.8rem; opacity:0.7">(Frecuencia Alfa)</span></button>
+                </div>
+
+                <div style="margin-top: 30px; display: flex; align-items: center; justify-content: center; gap: 15px; color: #00f3ff; font-family: 'Share Tech Mono'; font-size: 1.2rem;">
+                    <span>VOLUMEN SINTETIZADOR:</span>
+                    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.1" style="width: 200px; cursor: pointer; accent-color: #00f3ff;">
+                </div>
+
+                <canvas id="visualizer"></canvas>
+
+                <button class="stop-btn" id="btn-stop">DETENER SISTEMAS ACÚSTICOS</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- BOTTOM NAV BAR (MOBILE ONLY) -->
+    <div class="bottom-nav-bar">
+        <button class="bottom-nav-btn" onclick="window.location.href='index.html'">
+            <span style="font-size: 1.5rem;">🏠</span>
+            Inicio
+        </button>
+        <button class="bottom-nav-btn" onclick="window.location.href='clima.html'">
+            <span style="font-size: 1.5rem;">⛅</span>
+            Clima
+        </button>
+        <button class="bottom-nav-btn" onclick="window.location.href='tareas.html'">
+            <span style="font-size: 1.5rem;">✓</span>
+            Tareas
+        </button>
+        <button class="bottom-nav-btn active" onclick="window.location.href='focus.html'">
+            <span style="font-size: 1.5rem;">🧠</span>
+            Foco
+        </button>
+    </div>
+
+    <script src="nav.js"></script>
+    <script src="focus.js"></script>
+</body>
+</html>

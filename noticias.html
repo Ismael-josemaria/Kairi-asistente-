@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.A.I.R.I. - Centro de Noticias</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div class="container">
+        <div class="header">
+            <h1>K.A.I.R.I.</h1>
+            <p>Sistemas Stark Mk IV</p>
+        </div>
+
+        <div class="news-container">
+            <div id="status" style="text-align: center; font-size: 1.2rem; color: #00f3ff; margin-bottom: 20px;">
+                Conectando con satélites de información global...
+            </div>
+            <div id="news-sections">
+                <!-- Secciones de noticias inyectadas por JS -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- BOTTOM NAV BAR (MOBILE ONLY) -->
+    <div class="bottom-nav-bar">
+        <button class="bottom-nav-btn" onclick="window.location.href='index.html'">
+            <span style="font-size: 1.5rem;">🏠</span>
+            Inicio
+        </button>
+        <button class="bottom-nav-btn" onclick="window.location.href='clima.html'">
+            <span style="font-size: 1.5rem;">⛅</span>
+            Clima
+        </button>
+        <button class="bottom-nav-btn" onclick="window.location.href='tareas.html'">
+            <span style="font-size: 1.5rem;">✓</span>
+            Tareas
+        </button>
+        <button class="bottom-nav-btn active" onclick="window.location.href='noticias.html'">
+            <span style="font-size: 1.5rem;">📰</span>
+            News
+        </button>
+    </div>
+
+    <script src="nav.js"></script>
+    <script src="noticias.js"></script>
+    <script>
+        // Inicializar partículas simples
+        const canvas = document.getElementById('particles-canvas');
+        if (canvas && window.innerWidth > 768) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            for(let i=0; i<50; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 2, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 243, 255, ${Math.random() * 0.5})`;
+                ctx.fill();
+            }
+        }
+    </script>
+</body>
+</html>

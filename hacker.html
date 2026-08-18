@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.A.I.R.I. - Red Global Simulada</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body { margin: 0; padding: 0; background: #000; color: #0f0; font-family: 'Share Tech Mono', monospace; overflow: hidden; }
+        #matrix-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.15; pointer-events: none; }
+        
+        .terminal-container { position: relative; z-index: 10; width: 100vw; height: 100vh; padding: 20px 20px 40px 20px; box-sizing: border-box; display: flex; flex-direction: column; }
+        
+        .output { flex: 1; overflow-y: auto; text-shadow: 0 0 5px #0f0; font-size: 1.1rem; white-space: pre-wrap; word-break: break-all; margin-bottom: 5px; }
+        
+        .input-line { display: flex; font-size: 1.1rem; align-items: center; }
+        .prompt { margin-right: 10px; color: #00f3ff; text-shadow: 0 0 5px #00f3ff; font-weight: bold; white-space: pre; }
+        input[type="text"].term-input { flex: 1; background: transparent; border: none; color: #fff; font-family: inherit; font-size: inherit; outline: none; text-shadow: 0 0 5px #fff; font-weight: bold; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 255, 0, 0.1); }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 255, 0, 0.5); }
+        
+        /* Top Navigation */
+        .top-bar { position: absolute; top: 20px; right: 40px; display: flex; gap: 15px; z-index: 20; align-items: center; }
+        
+        .btn { color: #0f0; border: 1px solid #0f0; padding: 5px 15px; text-decoration: none; font-weight: bold; background: rgba(0,255,0,0.1); cursor: pointer; border-radius: 4px; transition: all 0.3s; font-family: 'Share Tech Mono', monospace; font-size: 1rem; display: flex; align-items: center; gap: 5px; }
+        .btn:hover { background: #0f0; color: #000; box-shadow: 0 0 15px #0f0; }
+        
+        .mode-toggle { display: flex; border: 1px solid #0f0; border-radius: 4px; overflow: hidden; }
+        .mode-btn { background: rgba(0,0,0,0.5); color: #0f0; border: none; padding: 5px 15px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-weight: bold; transition: all 0.3s; }
+        .mode-btn.active { background: #0f0; color: #000; box-shadow: 0 0 15px #0f0; }
+        
+        /* Side Panel (Command Index) */
+        .side-panel { position: absolute; top: 80px; right: -400px; width: 350px; height: calc(100vh - 120px); background: rgba(0, 20, 0, 0.9); border: 1px solid #0f0; box-shadow: -5px 0 30px rgba(0,255,0,0.2); z-index: 30; transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; backdrop-filter: blur(10px); }
+        .side-panel.open { right: 20px; }
+        
+        .panel-header { font-size: 1.2rem; border-bottom: 1px solid #0f0; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .close-btn { background: transparent; border: none; color: #0f0; cursor: pointer; font-size: 1.5rem; }
+        
+        .search-box { width: 100%; background: rgba(0,255,0,0.1); border: 1px solid #0f0; color: #fff; padding: 10px; font-family: 'Share Tech Mono', monospace; margin-bottom: 15px; outline: none; box-sizing: border-box; }
+        
+        .cmd-list { flex: 1; overflow-y: auto; margin: 0; padding: 0; list-style: none; }
+        .cmd-item { padding: 10px; border-bottom: 1px dashed rgba(0,255,0,0.3); cursor: pointer; transition: background 0.2s; }
+        .cmd-item:hover { background: rgba(0,255,0,0.2); }
+        .cmd-title { font-weight: bold; color: #fff; margin-bottom: 3px; display: block; }
+        .cmd-desc { font-size: 0.85rem; color: #a0aec0; }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+    
+    <div class="top-bar">
+        <div class="mode-toggle">
+            <button class="mode-btn active" id="btn-cmd" onclick="setSimMode('windows')">CMD</button>
+            <button class="mode-btn" id="btn-wsl" onclick="setSimMode('linux')">WSL</button>
+        </div>
+        <button class="btn" onclick="togglePanel()"><i class="ph-bold ph-list"></i> ÍNDICE</button>
+        <a href="index.html" class="btn"><i class="ph-bold ph-power"></i> CERRAR</a>
+    </div>
+    
+    <div class="side-panel" id="cmd-panel">
+        <div class="panel-header">
+            <span>CATÁLOGO DE SIMULACIÓN</span>
+            <button class="close-btn" onclick="togglePanel()">&times;</button>
+        </div>
+        <input type="text" class="search-box" id="cmd-search" placeholder="Buscar utilidad (ej. red, ping)..." onkeyup="filterCommands()">
+        <ul class="cmd-list" id="cmd-list">
+            <!-- Rellenado por JS -->
+        </ul>
+    </div>
+    
+    <div class="terminal-container" onclick="focusInput()">
+        <div class="output" id="term-out"></div>
+        <div class="input-line">
+            <span class="prompt" id="prompt-txt">C:\KAIRI></span>
+            <input type="text" class="term-input" id="term-in" autofocus autocomplete="off" spellcheck="false">
+        </div>
+    </div>
+    
+    <script>
+        // --- EFECTO MATRIX ---
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%""\'#&_(),.;:?!\\|{}<>[]^~'.split('');
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        for (let x = 0; x < columns; x++) drops[x] = 1;
+        setInterval(() => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters[Math.floor(Math.random() * letters.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }, 35);
+        
+        // --- UI ESTADO ---
+        const input = document.getElementById('term-in');
+        const output = document.getElementById('term-out');
+        const promptTxt = document.getElementById('prompt-txt');
+        const panel = document.getElementById('cmd-panel');
+        let simMode = 'windows';
+        let isProcessing = false;
+        
+        function setSimMode(mode) {
+            simMode = mode;
+            document.getElementById('btn-cmd').classList.toggle('active', mode === 'windows');
+            document.getElementById('btn-wsl').classList.toggle('active', mode === 'linux');
+            updatePrompt();
+            renderCommands();
+        }
+        
+        function togglePanel() {
+            panel.classList.toggle('open');
+            if (panel.classList.contains('open')) document.getElementById('cmd-search').focus();
+            else focusInput();
+        }
+        
+        function focusInput() {
+            if (window.getSelection().toString() === '') input.focus();
+        }
+
+        // --- ENTORNO VIRTUAL (VFS Y RED) ---
+        let currentPath = [];
+        let connectedNode = null; // null = Local, string = IP
+
+        const networkNodes = {
+            '127.0.0.1': { name: 'localhost', ports: [80, 443, 8080], ping: 1 },
+            '192.168.1.1': { name: 'ROUTER_PRINCIPAL', ports: [80, 22], ping: 5 },
+            '10.0.0.5': { name: 'STARK_MAINFRAME', ports: [22, 443, 3306], ping: 12 },
+            '45.22.19.8': { name: 'UNKNOWN_HOST', ports: [21, 22, 80], ping: 150 }
+        };
+
+        const defaultVfs = {
+            'SYS': {
+                'kernel.dll': '01010010 01101111 01101111 01110100',
+                'config.sys': 'MODE=SAFE\nNET=VIRTUAL\nPROTOCOL=OSIRIS'
+            },
+            'LOGS': {
+                'access.log': '[10:45] Conexión entrante...\n[10:46] Acceso denegado.',
+                'error.log': 'Error 404: Mainframe no encontrado.'
+            },
+            'readme.txt': 'Bienvenido a la red simulada de K.A.I.R.I.\nUsa comandos como dir, ls, cd, cat, ping o scan.'
+        };
+        
+        let vfs = defaultVfs;
+        const savedVfs = localStorage.getItem('KAIRI_VFS');
+        if (savedVfs) {
+            try { vfs = JSON.parse(savedVfs); } catch(e) { vfs = defaultVfs; }
+        }
+
+        function saveVfs() {
+            localStorage.setItem('KAIRI_VFS', JSON.stringify(vfs));
+        }
+
+        function getCurrentDir() {
+            let dir = vfs;
+            for (const p of currentPath) {
+                if (dir[p]) dir = dir[p];
+            }
+            return dir;
+        }
+
+        function updatePrompt() {
+            let pathStr = currentPath.join(simMode === 'windows' ? '\\' : '/');
+            if (simMode === 'windows') {
+                promptTxt.innerText = `C:\\KAIRI${pathStr ? '\\' + pathStr : ''}> `;
+                promptTxt.style.color = '#00f3ff';
+            } else {
+                promptTxt.innerText = `root@kairi:~/${pathStr}# `;
+                promptTxt.style.color = '#ff0055';
+            }
+        }
+
+        // --- SISTEMA DE COMANDOS SIMULADO ---
+        function printLine(text, color = '#0f0') {
+            const div = document.createElement('div');
+            div.style.color = color;
+            div.innerText = text;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+        const simCommands = {
+            'clear': async () => { output.innerHTML = ''; },
+            'cls': async () => { output.innerHTML = ''; },
+            'help': async () => {
+                printLine('COMANDOS DISPONIBLES EN SIMULADOR:');
+                printLine('  Archivos: dir, ls, cd, mkdir, rm, cat, echo, tree, pwd');
+                printLine('  Red:      ping, scan, nmap, netstat, tracert, ipconfig, ifconfig');
+                printLine('  Sistema:  systeminfo, date, time, ver, color, exit');
+                printLine('  Utilidad: clear, cls, help, whoami, tasklist, top');
+            },
+            'ipconfig': async () => {
+                printLine('Configuración IP de Windows (Virtual)');
+                printLine('  Adaptador Ethernet VNET:');
+                printLine('     Dirección IPv4. . . . . . . . : 192.168.1.15');
+                printLine('     Máscara de subred . . . . . . : 255.255.255.0');
+                printLine('     Puerta de enlace predeterminada : 192.168.1.1');
+            },
+            'ifconfig': async () => {
+                printLine('eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500');
+                printLine('        inet 192.168.1.15  netmask 255.255.255.0  broadcast 192.168.1.255');
+                printLine('        inet6 fe80::a00:27ff:fe4e:66a1  prefixlen 64  scopeid 0x20<link>');
+                printLine('        RX packets 123456  bytes 987654321 (941.9 MiB)');
+            },
+            'dir': async () => simCommands.ls(),
+            'ls': async () => {
+                const dir = getCurrentDir();
+                let result = '';
+                for (const [key, val] of Object.entries(dir)) {
+                    if (typeof val === 'object') result += `<DIR>  ${key}\n`;
+                    else result += `       ${key}\n`;
+                }
+                printLine(result || '(Directorio vacío)');
+            },
+            'cd': async (args) => {
+                const target = args[0];
+                if (!target || target === '~' || target === '\\') {
+                    currentPath = [];
+                } else if (target === '..') {
+                    currentPath.pop();
+                } else {
+                    const dir = getCurrentDir();
+                    if (dir[target] && typeof dir[target] === 'object') {
+                        currentPath.push(target);
+                    } else {
+                        printLine(`El sistema no puede encontrar la ruta especificada: ${target}`, '#ff3333');
+                        return;
+                    }
+                }
+                updatePrompt();
+            },
+            'cat': async (args) => simCommands.type(args),
+            'type': async (args) => {
+                const target = args[0];
+                if (!target) { printLine('Falta el nombre del archivo.', '#ff3333'); return; }
+                const dir = getCurrentDir();
+                if (dir[target] && typeof dir[target] === 'string') {
+                    printLine(dir[target], '#fff');
+                } else {
+                    printLine(`El archivo no existe o es un directorio: ${target}`, '#ff3333');
+                }
+            },
+            'pwd': async () => {
+                printLine('/' + currentPath.join('/'));
+            },
+            'whoami': async () => {
+                printLine('stark_industries\\administrator');
+            },
+            'tasklist': async () => {
+                printLine('PID   Name            Mem Usage');
+                printLine('0     System Idle     4 K');
+                printLine('4     System          120 K');
+                printLine('1024  K.A.I.R.I.    1,048,576 K');
+                printLine('2048  Matrix.exe      12,000 K');
+            },
+            'top': async () => simCommands.tasklist(),
+            'ping': async (args) => {
+                const ip = args[0];
+                if (!ip) { printLine('Uso: ping <ip>', '#ff3333'); return; }
+                const node = networkNodes[ip];
+                if (node) {
+                    printLine(`Haciendo ping a ${ip} (${node.name}) con 32 bytes de datos:`);
+                    for(let i=0; i<4; i++) {
+                        await sleep(800);
+                        let ms = node.ping + Math.floor(Math.random() * 5);
+                        printLine(`Respuesta desde ${ip}: bytes=32 tiempo=${ms}ms TTL=64`);
+                    }
+                    printLine(`\nEstadísticas de ping para ${ip}:`);
+                    printLine(`Paquetes: enviados = 4, recibidos = 4, perdidos = 0`);
+                } else {
+                    printLine(`Haciendo ping a ${ip} con 32 bytes de datos:`);
+                    await sleep(1000);
+                    printLine('Tiempo de espera agotado para esta solicitud.', '#ff3333');
+                    await sleep(1000);
+                    printLine('Tiempo de espera agotado para esta solicitud.', '#ff3333');
+                    printLine(`\nEstadísticas de ping para ${ip}:`);
+                    printLine(`Paquetes: enviados = 2, recibidos = 0, perdidos = 2 (100% perdidos)`);
+                }
+            },
+            'scan': async () => simCommands.nmap(['all']),
+            'nmap': async (args) => {
+                const target = args[0];
+                if (target === 'all') {
+                    printLine('Iniciando escaneo de la subred virtual (192.168.1.0/24 y redes externas conocidas)...');
+                    for (const [ip, node] of Object.entries(networkNodes)) {
+                        await sleep(1000);
+                        printLine(`[HOST DETECTADO] IP: ${ip} | Hostname: ${node.name}`, '#00f3ff');
+                    }
+                    printLine('Escaneo completado.');
+                } else if (target && networkNodes[target]) {
+                    printLine(`Escaneando puertos en ${target} (${networkNodes[target].name})...`);
+                    await sleep(1500);
+                    printLine('PORT    STATE  SERVICE');
+                    for (const p of networkNodes[target].ports) {
+                        await sleep(300);
+                        printLine(`${p}/tcp  open   ${p===80?'http':p===443?'https':p===22?'ssh':'unknown'}`);
+                    }
+                } else {
+                    printLine('Uso: nmap <ip> o scan (para todas)', '#ff3333');
+                }
+            },
+            'mkdir': async (args) => { simCommands.md(args) },
+            'md': async (args) => {
+                const target = args[0];
+                if (!target) { printLine('Uso: mkdir <nombre>', '#ff3333'); return; }
+                const dir = getCurrentDir();
+                if (dir[target]) { printLine('Ya existe un archivo o carpeta con ese nombre.', '#ff3333'); return; }
+                dir[target] = {};
+                saveVfs();
+                printLine('Directorio creado.');
+            },
+            'rmdir': async (args) => { simCommands.rm(args) },
+            'del': async (args) => { simCommands.rm(args) },
+            'rm': async (args) => {
+                const target = args[0];
+                if (!target) { printLine('Uso: rm <nombre>', '#ff3333'); return; }
+                const dir = getCurrentDir();
+                if (dir[target] !== undefined) {
+                    delete dir[target];
+                    saveVfs();
+                    printLine('Elemento eliminado.');
+                } else {
+                    printLine(`No se encontró el elemento: ${target}`, '#ff3333');
+                }
+            },
+            'echo': async (args) => {
+                // Soportar "echo texto > archivo"
+                const fullText = args.join(' ');
+                const splitIdx = fullText.indexOf('>');
+                if (splitIdx !== -1) {
+                    const text = fullText.substring(0, splitIdx).trim();
+                    const fileName = fullText.substring(splitIdx + 1).trim();
+                    if (!fileName) { printLine('Sintaxis incorrecta.', '#ff3333'); return; }
+                    const dir = getCurrentDir();
+                    dir[fileName] = text;
+                    saveVfs();
+                    printLine(`Contenido guardado en ${fileName}`);
+                } else {
+                    printLine(fullText, '#fff');
+                }
+            },
+            'tree': async () => {
+                const printTree = (obj, indent = '') => {
+                    for (const [key, val] of Object.entries(obj)) {
+                        if (typeof val === 'object') {
+                            printLine(`${indent}├── ${key} (DIR)`, '#00f3ff');
+                            printTree(val, indent + '│   ');
+                        } else {
+                            printLine(`${indent}├── ${key}`, '#a0aec0');
+                        }
+                    }
+                };
+                printLine(currentPath.length ? currentPath[currentPath.length -1] : 'ROOT', '#00f3ff');
+                printTree(getCurrentDir());
+            },
+            'systeminfo': async () => {
+                printLine('Información del sistema (Virtual)', '#00f3ff');
+                printLine('=================================');
+                printLine('Nombre del host:           KAIRI-NODE-01');
+                printLine('Sistema Operativo:         K.A.I.R.I. OS Mk V');
+                printLine('Fabricante del OS:         Stark Industries');
+                printLine('Tipo de sistema:           X64-based PC');
+                printLine('Procesador(es):            1 Processor(s) Installed.');
+                printLine('                           [01]: Intel64 Family 6 Model 158 Stepping 10 GenuineIntel ~3600 Mhz');
+                printLine('Memoria física total:      16,384 MB');
+                printLine('Memoria física disponible: 8,192 MB');
+            },
+            'date': async () => {
+                printLine('La fecha actual es: ' + new Date().toLocaleDateString());
+            },
+            'time': async () => {
+                printLine('La hora actual es: ' + new Date().toLocaleTimeString());
+            },
+            'ver': async () => {
+                printLine('K.A.I.R.I. OS Mk V [Versión 5.0.22621]');
+            },
+            'color': async (args) => {
+                const col = args[0];
+                if (!col) { printLine('Uso: color <hex|nombre>', '#ff3333'); return; }
+                output.style.color = col;
+                output.style.textShadow = `0 0 5px ${col}`;
+                printLine(`Color de consola cambiado a ${col}`, col);
+            },
+            'netstat': async () => {
+                printLine('Conexiones activas');
+                printLine('  Proto  Dirección local        Dirección remota       Estado');
+                printLine('  TCP    192.168.1.15:135       0.0.0.0:0              LISTENING');
+                printLine('  TCP    192.168.1.15:443       10.0.0.5:443           ESTABLISHED');
+                printLine('  TCP    192.168.1.15:49666     45.22.19.8:80          TIME_WAIT');
+            },
+            'tracert': async (args) => {
+                const target = args[0];
+                if (!target) { printLine('Uso: tracert <ip/host>', '#ff3333'); return; }
+                printLine(`Trazando la ruta hacia ${target} sobre un máximo de 30 saltos:`);
+                await sleep(500);
+                printLine('  1    <1 ms    <1 ms    <1 ms  192.168.1.1');
+                await sleep(500);
+                printLine('  2     5 ms     4 ms     5 ms  10.0.0.1');
+                await sleep(500);
+                printLine(`  3    12 ms    15 ms    14 ms  ${target}`);
+                await sleep(500);
+                printLine('Traza completa.');
+            },
+            'exit': async () => {
+                window.location.href = 'index.html';
+            }
+        };
+
+        // --- PROCESADOR DE ENTRADA ---
+        const history = [];
+        let historyIndex = -1;
+        
+        input.addEventListener('keydown', async function(e) {
+            if (isProcessing) { e.preventDefault(); return; }
+            
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (history.length > 0) {
+                    historyIndex = Math.min(historyIndex + 1, history.length - 1);
+                    this.value = history[history.length - 1 - historyIndex];
+                }
+                return;
+            }
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    this.value = history[history.length - 1 - historyIndex];
+                } else {
+                    historyIndex = -1;
+                    this.value = '';
+                }
+                return;
+            }
+            
+            if (e.key === 'Enter') {
+                const val = this.value.trim();
+                if (val !== '' && history[history.length - 1] !== val) history.push(val);
+                historyIndex = -1;
+                this.value = '';
+                
+                if (val) {
+                    const line = document.createElement('div');
+                    line.innerHTML = `<span style="color:${simMode==='windows'?'#00f3ff':'#ff0055'}">${promptTxt.innerText}</span> <span style="color:#fff">${val}</span>`;
+                    output.appendChild(line);
+                    
+                    const args = val.split(' ');
+                    const cmd = args.shift().toLowerCase();
+                    
+                    isProcessing = true;
+                    if (simCommands[cmd]) {
+                        await simCommands[cmd](args);
+                    } else {
+                        printLine(`'${cmd}' no se reconoce como un comando interno o externo, programa o archivo por lotes ejecutable.`, '#ff3333');
+                    }
+                    isProcessing = false;
+                    output.scrollTop = output.scrollHeight;
+                }
+            }
+        });
+
+        // --- CATÁLOGO DE COMANDOS (UI) ---
+        const commandDB = {
+            windows: [
+                { cmd: 'ipconfig', desc: 'Muestra la configuración de red y direcciones IP.', tags: 'red ip internet' },
+                { cmd: 'ping 10.0.0.5', desc: 'Envía paquetes de prueba al servidor Stark.', tags: 'red internet latencia conexion' },
+                { cmd: 'dir', desc: 'Lista los archivos del directorio virtual.', tags: 'archivos carpetas listar' },
+                { cmd: 'mkdir test', desc: 'Crea una nueva carpeta.', tags: 'archivos crear carpeta md' },
+                { cmd: 'echo hola > notas.txt', desc: 'Crea un archivo de texto con contenido.', tags: 'archivos crear texto' },
+                { cmd: 'rm notas.txt', desc: 'Elimina un archivo o carpeta.', tags: 'archivos borrar del' },
+                { cmd: 'tree', desc: 'Muestra el árbol de directorios.', tags: 'archivos carpetas visualizar' },
+                { cmd: 'type readme.txt', desc: 'Lee el contenido de un archivo virtual.', tags: 'leer archivo texto' },
+                { cmd: 'systeminfo', desc: 'Muestra la información técnica del sistema.', tags: 'sistema info specs pc' },
+                { cmd: 'color #ff00ff', desc: 'Cambia el color de la consola.', tags: 'sistema ui aspecto' },
+                { cmd: 'tasklist', desc: 'Muestra los procesos en ejecución.', tags: 'procesos ram cpu programas' },
+                { cmd: 'netstat', desc: 'Muestra las conexiones de red activas.', tags: 'red conexiones puertos' },
+                { cmd: 'scan', desc: 'Descubre otras IPs en la red virtual.', tags: 'red hack puertos' },
+                { cmd: 'exit', desc: 'Cierra el simulador.', tags: 'salir cerrar' }
+            ],
+            linux: [
+                { cmd: 'ifconfig', desc: 'Muestra la configuración de interfaces de red.', tags: 'red ip internet' },
+                { cmd: 'ls', desc: 'Lista archivos del directorio actual.', tags: 'archivos carpetas listar' },
+                { cmd: 'cd LOGS', desc: 'Navega al directorio LOGS.', tags: 'ruta carpetas' },
+                { cmd: 'cat readme.txt', desc: 'Muestra el contenido de un archivo.', tags: 'leer texto' },
+                { cmd: 'top', desc: 'Muestra los procesos del sistema virtual.', tags: 'procesos ram cpu' },
+                { cmd: 'nmap 45.22.19.8', desc: 'Escanea puertos abiertos en un servidor virtual.', tags: 'hack red puertos nmap' },
+                { cmd: 'pwd', desc: 'Muestra la ruta actual.', tags: 'ruta' }
+            ]
+        };
+        
+        function renderCommands(filter = '') {
+            const list = document.getElementById('cmd-list');
+            list.innerHTML = '';
+            const data = commandDB[simMode];
+            data.forEach(item => {
+                if (item.cmd.toLowerCase().includes(filter) || item.desc.toLowerCase().includes(filter) || item.tags.includes(filter)) {
+                    const li = document.createElement('li');
+                    li.className = 'cmd-item';
+                    li.innerHTML = `<span class="cmd-title">${item.cmd}</span><span class="cmd-desc">${item.desc}</span>`;
+                    li.onclick = () => {
+                        input.value = item.cmd;
+                        togglePanel();
+                        input.focus();
+                    };
+                    list.appendChild(li);
+                }
+            });
+        }
+        
+        function filterCommands() {
+            renderCommands(document.getElementById('cmd-search').value.toLowerCase());
+        }
+        
+        // Inicializar
+        output.innerHTML = '<div>K.A.I.R.I. SECURE SHELL v6.0 (VIRTUAL SANDBOX)</div><div style="color:#00f3ff">Modo simulación global activado. Entorno de archivos y red virtualizados.</div><br>';
+        setSimMode('windows');
+    </script>
+</body>
+</html>

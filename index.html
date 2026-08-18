@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.A.I.R.I. Core Interface</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .face-overlay {
+            position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 150px; height: 150px;
+            border: 2px dashed #00f3ff;
+            border-radius: 20px;
+            pointer-events: none;
+            display: none;
+            z-index: 10;
+        }
+        .camera-active .face-overlay {
+            display: block;
+            animation: faceScan 2s infinite alternate;
+        }
+        .face-text {
+            position: absolute;
+            bottom: -25px; left: 50%; transform: translateX(-50%);
+            color: #00f3ff; font-family: 'Share Tech Mono';
+            font-size: 0.8rem; white-space: nowrap;
+        }
+        @keyframes faceScan {
+            0% { transform: translate(-50%, -50%) scale(1); border-color: rgba(0, 243, 255, 0.5); }
+            100% { transform: translate(-50%, -50%) scale(1.1); border-color: rgba(0, 243, 255, 1); }
+        }
+        /* Smart Home Widget */
+        .home-btn {
+            background: rgba(0, 243, 255, 0.1); border: 1px solid rgba(0, 243, 255, 0.3);
+            color: #00f3ff; font-family: 'Share Tech Mono'; padding: 5px 10px;
+            border-radius: 4px; cursor: pointer; transition: all 0.3s; width: 100%; margin-top: 5px;
+        }
+        .home-btn:hover, .home-btn.active {
+            background: rgba(0, 243, 255, 0.3);
+            box-shadow: 0 0 10px rgba(0,243,255,0.5);
+        }
+        
+        /* 3D Wireframe Sphere */
+        #wireframe-sphere {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 300px; height: 300px;
+            transform: translate(-50%, -50%);
+            transform-style: preserve-3d;
+            animation: rotateSphere 20s infinite linear;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .sphere-ring {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: 1px dashed rgba(0, 243, 255, 0.3);
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+        .s-ring1 { transform: rotateY(0deg); }
+        .s-ring2 { transform: rotateY(30deg); }
+        .s-ring3 { transform: rotateY(60deg); }
+        .s-ring4 { transform: rotateY(90deg); }
+        .s-ring5 { transform: rotateY(120deg); }
+        .s-ring6 { transform: rotateY(150deg); }
+        @keyframes rotateSphere {
+            0% { transform: translate(-50%, -50%) rotateX(15deg) rotateY(0deg); }
+            100% { transform: translate(-50%, -50%) rotateX(15deg) rotateY(360deg); }
+        }
+        
+    </style>
+</head>
+<body>
+    <!-- BOOT SEQUENCE OVERLAY -->
+    <div id="boot-overlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:#00040a; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#00f3ff; font-family:'Share Tech Mono', monospace; transition:opacity 1s ease-out;">
+        <div style="font-size:3rem; margin-bottom:20px; animation:pulse 1s infinite alternate;">K.A.I.R.I. OS v1.0</div>
+        <div id="boot-text" style="font-size:1.2rem; min-height:2rem; width:80%; text-align:center;">Inicializando sistemas base...</div>
+    </div>
+    <script>
+        const bootText = document.getElementById('boot-text');
+        const overlay = document.getElementById('boot-overlay');
+        const msgs = ["Iniciando núcleo de red...", "Calibrando biosensores...", "Cargando algoritmos de predicción...", "Sistema en línea."];
+        let msgIdx = 0;
+        const interval = setInterval(() => {
+            if(msgIdx < msgs.length) {
+                bootText.innerText = msgs[msgIdx];
+                msgIdx++;
+            } else {
+                clearInterval(interval);
+                overlay.style.opacity = "0";
+                setTimeout(() => overlay.remove(), 1000);
+            }
+        }, 600);
+    </script>
+    <div class="container">
+        <div class="header">
+            <h1>K.A.I.R.I.</h1>
+            <p>Sistemas Stark Mk IV</p>
+        </div>
+        
+        <!-- LAYOUT DE ORDENADOR (3 COLUMNAS) -->
+        <iframe id="module-frame" style="display:none; width:100%; height:calc(100vh - 120px); border:none; z-index:100; position:relative; background: transparent; border-radius: 12px; margin-top: 10px;"></iframe>
+        <div class="desktop-layout">
+            
+            <!-- COLUMNA IZQUIERDA: Widgets y Logs -->
+            <div class="layout-left">
+                <div class="system-logs" id="sys-logs"></div>
+                <div class="widgets-container">
+                    <div id="widget-clock" class="widget-panel">
+                        <div class="widget-title">HORA ESTELAR</div>
+                        <div id="hud-time" class="widget-value">00:00:00</div>
+                        <div id="hud-date" class="widget-sub">---</div>
+                        <div id="hud-battery" class="widget-sub" style="margin-top: 5px; color: #4ade80;">Batería: 100% 🔋</div>
+                    </div>
+                    <div id="widget-crypto" class="widget-panel" style="margin-top: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <div class="widget-title" style="margin:0;">MERCADO CRIPTO</div>
+                            <button id="crypto-refresh-btn" style="background: transparent; border: 1px solid #00f3ff; color: #00f3ff; cursor: pointer; border-radius: 4px; font-family: 'Share Tech Mono'; padding: 2px 8px; transition: all 0.3s;" onmouseover="this.style.background='rgba(0,243,255,0.2)'" onmouseout="this.style.background='transparent'">SYNC</button>
+                        </div>
+                        <div id="hud-btc" class="widget-value" style="font-size: 1.2rem;">BTC: ---</div>
+                        <div id="hud-eth" class="widget-sub">ETH: ---</div>
+                    </div>
+                    <div id="widget-weather" class="widget-panel" style="margin-top: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <div class="widget-title" style="margin:0;">METEOROLOGÍA LOCAL</div>
+                            <button id="weather-refresh-btn" style="background: transparent; border: 1px solid #00f3ff; color: #00f3ff; cursor: pointer; border-radius: 4px; font-family: 'Share Tech Mono'; padding: 2px 8px; transition: all 0.3s;" onmouseover="this.style.background='rgba(0,243,255,0.2)'" onmouseout="this.style.background='transparent'">SYNC</button>
+                        </div>
+                        <div id="hud-temp" class="widget-value" style="font-size: 1.5rem;">-- °C</div>
+                        <div id="hud-wind" class="widget-sub">Viento: -- km/h</div>
+                    </div>
+                    <div id="widget-tasks" class="widget-panel" style="margin-top: 15px;">
+                        <div class="widget-title">TAREAS ACTIVAS</div>
+                        <ul id="hud-tasks" style="margin: 5px 0 0 15px; padding: 0; font-size: 0.9rem; color: #a5f3fc; list-style-type: square;">
+                            <li style="color: #64748b;">No hay tareas pendientes.</li>
+                        </ul>
+                    </div>
+
+                    <!-- NUEVO: WIDGET DE TELEMETRÍA (GRÁFICO) -->
+                    <div id="widget-telemetry" class="widget-panel" style="margin-top: 15px;">
+                        <div class="widget-title">RENDIMIENTO DEL NÚCLEO</div>
+                        <div style="width: 100%; height: 120px; margin-top: 10px;">
+                            <canvas id="telemetryChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- NUEVO: WIDGET DE SPOTIFY (MULTIMEDIA) -->
+                    <div class="widget-panel" style="margin-top: 15px; padding: 15px; border-radius: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div class="widget-title" style="margin:0;">🎵 SPOTIFY PERSONAL</div>
+                            <button id="spotify-save-btn" style="background: transparent; border: 1px solid #00f3ff; color: #00f3ff; cursor: pointer; border-radius: 4px; font-family: 'Share Tech Mono'; padding: 2px 8px; transition: all 0.3s;">GUARDAR</button>
+                        </div>
+                        <input type="text" id="spotify-input" placeholder="Pega el enlace o URL de Spotify..." style="width: 100%; background: rgba(0, 243, 255, 0.1); border: 1px solid rgba(0, 243, 255, 0.3); color: #00f3ff; padding: 8px; margin-bottom: 10px; font-family: 'Share Tech Mono'; border-radius: 4px; box-sizing: border-box; outline: none;">
+                        <div id="widget-spotify" style="overflow: hidden; border-radius: 12px; background: transparent;">
+                            <iframe id="spotify-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <!-- NUEVO: WIDGET DE DOMÓTICA (SMART HOME) -->
+                    <div class="widget-panel" style="margin-top: 15px; padding: 15px; border-radius: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div class="widget-title" style="margin:0;">🏠 DOMÓTICA LOCAL</div>
+                            <span style="color:#00f3ff; font-size:0.8rem">HA.local</span>
+                        </div>
+                        <button class="home-btn" id="btn-light-main">Luz Principal: OFF</button>
+                        <button class="home-btn" id="btn-light-desk">Luz Escritorio: OFF</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- COLUMNA CENTRAL: Arc Reactor HUD -->
+            <div class="layout-center">
+                <div class="hud-container" id="hud">
+                    <div id="wireframe-sphere">
+                        <div class="sphere-ring s-ring1"></div>
+                        <div class="sphere-ring s-ring2"></div>
+                        <div class="sphere-ring s-ring3"></div>
+                        <div class="sphere-ring s-ring4"></div>
+                        <div class="sphere-ring s-ring5"></div>
+                        <div class="sphere-ring s-ring6"></div>
+                    </div>
+                    <div class="hud-ring ring-1"></div>
+                    <div class="hud-ring ring-2"></div>
+                    <div class="hud-ring ring-3"></div>
+                    <div class="hud-core">
+                        <div class="core-inner-glow"></div>
+                        <video id="hud-camera" autoplay playsinline muted></video>
+                        <div class="face-overlay">
+                            <div class="face-text">ANALIZANDO... 100% COINCIDENCIA</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUMNA DERECHA: Chat y Manual -->
+            <div class="layout-right">
+                <div class="glass-panel">
+                    <div id="status">Sistemas en espera. Inicializando...</div>
+                    <div class="dialog">
+                        <p id="user-text" class="user-text">Tú: ...</p>
+                        <p id="KAIRI-text" class="KAIRI-text">KAIRI: ...</p>
+                    </div>
+                    <div class="manual-input-container" style="margin-top: 15px; display: flex; gap: 10px;">
+                        <input type="text" id="manual-cmd-input" placeholder="Escriba un comando..." style="flex: 1; background: rgba(0, 243, 255, 0.1); border: 1px solid rgba(0, 243, 255, 0.3); color: #00f3ff; padding: 10px; font-family: 'Share Tech Mono'; border-radius: 4px; outline: none; font-size: 1rem;">
+                        <button id="manual-cmd-btn" style="background: rgba(0, 243, 255, 0.2); border: 1px solid #00f3ff; color: #fff; cursor: pointer; border-radius: 4px; font-family: 'Share Tech Mono'; padding: 0 15px; font-weight: bold; transition: all 0.3s; font-size: 1rem;">&gt;</button>
+                    </div>
+                </div>
+
+                <!-- Manual Holográfico (Oculto por defecto) -->
+                <div id="holographic-manual" class="hidden-panel">
+                    <h2><span class="highlight">K.A.I.R.I.</span> // DIRECTORIO DE COMANDOS</h2>
+                    <div class="manual-content">
+                        <ul>
+                            <li><strong>Sistema Host:</strong> "Sube/Baja volumen", "Apaga el ordenador", "Diagnóstico", "Qué hay en mi ordenador".</li>
+                            <li><strong>Modulador de Voz (NUEVO):</strong> "Habla como ardilla", "Voz grave", "Habla más rápido", "Restaura tu voz", "Cállate".</li>
+                            <li><strong>Telemetría y Red:</strong> "Estado de la CPU", "¿Cuánta batería queda?", "¿Cuál es mi IP?".</li>
+                            <li><strong>Apps Nativas:</strong> "Abre el bloc de notas", "Abre la calculadora", "Abre Spotify", "Abre Google Chrome".</li>
+                            <li><strong>Navegación Táctica:</strong> "Calcula una ruta a [Lugar]", "Traduce al inglés: [Frase]".</li>
+                            <li><strong>Cibernética y Utilidad:</strong> "Lee mi portapapeles", "Genera una contraseña", "Dale la vuelta a [Texto]".</li>
+                            <li><strong>Seguridad:</strong> "Activa cámaras", "Apaga cámara", "Protocolo de combate", "Protocolo Verónica".</li>
+                            <li><strong>Entorno Inteligente:</strong> "Apaga las luces" (Modo cine), "Enciende las luces".</li>
+                            <li><strong>Investigación Global:</strong> "¿Qué tiempo hace en [Ciudad]?", "Dime las noticias" (Globales), "Busca en Google [tema]", "Búscame información sobre [tema]" (Wikipedia).</li>
+                            <li><strong>Matemáticas y Utilidad:</strong> "Calcula [X] más/menos/por/entre [Y]", "Raíz cuadrada de [X]", "¿Qué hora es?", "¿Qué día es hoy?".</li>
+                            <li><strong>Multimedia:</strong> "Abre el bloc de notas", "Protocolo Noctis", "Protocolo fiesta".</li>
+                            <li><strong>Productividad y Finanzas:</strong> "Modo concentración", "Inspírame", "Precio de Bitcoin", "Mina criptomonedas".</li>
+                            <li><strong>Juegos y Texto:</strong> "Tira un dado", "Piedra, papel o tijera", "Analiza mi portapapeles".</li>
+                            <li><strong>Evolución:</strong> "Enséñame un dato curioso" (Cultura), o enséñale tú directamente ("responde X").</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV BAR (MOBILE ONLY) -->
+    <div class="bottom-nav-bar">
+        <button class="bottom-nav-btn active" onclick="window.location.href='index.html'">
+            <span style="font-size: 1.5rem;">🏠</span>
+            Inicio
+        </button>
+        <button class="bottom-nav-btn" onclick="window.loadModule('clima.html')">
+            <span style="font-size: 1.5rem;">⛅</span>
+            Clima
+        </button>
+        <button class="bottom-nav-btn" onclick="window.loadModule('tareas.html')">
+            <span style="font-size: 1.5rem;">✓</span>
+            Tareas
+        </button>
+        <button class="bottom-nav-btn" onclick="window.loadModule('noticias.html')">
+            <span style="font-size: 1.5rem;">📰</span>
+            News
+        </button>
+    </div>
+
+    <script src="nav.js"></script>
+    <script>
+        // SPA Routing para mantener el micrófono activo
+        window.loadModule = function(url) {
+            const layout = document.querySelector('.desktop-layout');
+            const frame = document.getElementById('module-frame');
+            
+            if (url === 'index.html' || url === '' || url === '/') {
+                if(frame) frame.style.display = 'none';
+                if(frame) frame.src = '';
+                if(layout) layout.style.display = 'flex';
+                
+                // Actualizar barra activa
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if(btn.getAttribute('onclick') && btn.getAttribute('onclick').includes('index.html')) {
+                        btn.classList.add('active');
+                    }
+                });
+            } else {
+                if(layout) layout.style.display = 'none';
+                if(frame) {
+                    frame.style.display = 'block';
+                    frame.src = url;
+                }
+                
+                // Actualizar barra activa
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if(btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(url)) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+        };
+    </script>
+    <script src="script.js"></script>
+    <script src="brain.js"></script>
+</body>
+</html>

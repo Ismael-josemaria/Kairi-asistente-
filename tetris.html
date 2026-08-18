@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.A.I.R.I. - Simulador Táctico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div class="container">
+        <div class="header">
+            <h1>K.A.I.R.I.</h1>
+            <p>Sistemas Stark Mk IV</p>
+            <a href="index.html" class="nav-btn" style="display: inline-block; margin-top: 15px; padding: 5px 15px; font-size: 0.9rem;">VOLVER AL NÚCLEO</a>
+        </div>
+
+        <div class="tetris-wrapper">
+            <div class="tetris-board-container">
+                <canvas id="tetris-canvas" width="300" height="600"></canvas>
+            </div>
+            
+            <div class="tetris-sidebar">
+                <div class="tetris-panel">
+                    <h2>PUNTUACIÓN ACTUAL</h2>
+                    <div class="tetris-score" id="current-score">0</div>
+                    <div style="margin-top: 10px; color: #a0aec0;">NIVEL: <span id="current-level" style="color: #00f3ff; font-weight: bold;">1</span></div>
+                </div>
+                
+                <button class="tetris-btn" id="start-btn">INICIAR SIMULACIÓN</button>
+                <div id="game-status" style="color: #ff3333; font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 10px red;"></div>
+
+                <div class="tetris-panel" style="flex: 1;">
+                    <h2>MEJORES PUNTUACIONES</h2>
+                    <ul class="tetris-leaderboard" id="leaderboard">
+                        <li>Cargando red...</li>
+                    </ul>
+                </div>
+                
+                <div class="tetris-panel" style="font-size: 0.9rem; color: #a0aec0;">
+                    <strong>CONTROLES:</strong><br>
+                    Flechas IZQ/DER: Mover<br>
+                    Flecha ARRIBA: Rotar<br>
+                    Flecha ABAJO: Bajar rápido
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="tetris.js"></script>
+    <script>
+        const canvas = document.getElementById('particles-canvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            for(let i=0; i<50; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 2, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 243, 255, ${Math.random() * 0.5})`;
+                ctx.fill();
+            }
+        }
+    </script>
+    <script src="nav.js"></script>
+</body>
+</html>

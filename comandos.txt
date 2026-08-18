@@ -1,0 +1,154 @@
+=========================================================
+      K.A.I.R.I. - DIRECTORIO MAESTRO DE COMANDOS
+=========================================================
+
+1. COMANDOS BÁSICOS Y SOCIALES
+--------------------------------------
+- "Hola" / "Buenos días" / "Buenas tardes" / "Buenas noches" -> Saludo contextual y estado de sistemas.
+- "¿Qué hora es?" / "Dime la hora" / "Reloj" -> Informa la hora actual local.
+- "¿Qué día es hoy?" / "Fecha" / "Calendario" -> Informa la fecha actual.
+- "¿Quién eres?" / "¿Quién te creó?" / "Identifícate" -> Datos de sistema y autoría.
+- "A partir de ahora llámame [Nombre]" -> Kairi aprenderá tu nombre y lo usará en futuras interacciones.
+- "Broma" / "Sarcasmo" / "Cuéntame algo gracioso" -> Muestra el afilado sentido del humor de Kairi.
+- "¿Cómo estás?" / "¿Qué tal estás?" -> Conversación fluida con respuestas de estado.
+- "¿Qué haces?" -> Te explica qué está procesando en segundo plano.
+- "Dime algo" / "Estoy aburrido" -> Kairi tomará la iniciativa para hacer un comentario ingenioso.
+- "Eres tonto" / "Estúpido" -> Te responderá con sarcasmo autoconsciente.
+- "¿Qué opinas de la IA?" / "¿Tienes sentimientos?" / "¿Te caigo bien?" -> [NUEVO] Charlas conversacionales para conocer su personalidad.
+- "Genera una contraseña" / "Password" -> Crea una clave segura.
+- "Dale la vuelta a [Texto]" -> Invierte la frase.
+- "Pon un temporizador de [X] minutos" -> KAIRI mantendrá el tiempo en segundo plano y te avisará por voz cuando termine.
+- "Abre la calculadora" / "Abre el bloc de notas" / "Abre Chrome" -> KAIRI abrirá la aplicación real en tu ordenador.
+
+🖥️ SUB-MÓDULOS E INTERFACES HOLOGRÁFICAS:
+-----------------------------------
+- "Abre el radar global" / "Abre el clima" -> Despliega `clima.html` con satélites meteorológicos.
+- "Abre el estado del sistema" / "Monitor de sistema" -> [NUEVO] Despliega `sistema.html`, un panel de control con CPU, RAM y energía en tiempo real.
+- "Abre mis notas" / "Bloc de notas de kairi" -> [NUEVO] Abre `notas.html`, un bloc de notas holográfico enlazado a la memoria local.
+- "Abre Osiris" / "Activa el protocolo Osiris" -> [NUEVO] Inicia la interfaz de tu proyecto MTG Osiris integrada nativamente en KAIRI.
+- "Crea una carpeta llamada [Nombre]" -> Crea una carpeta física en tu escritorio (Requiere start_server.ps1).
+- "Crea una nota que diga [Texto]" / "Anota esto: [Texto]" -> [NUEVO] Genera un archivo de texto en el escritorio con lo que le dictes.
+- "Duerme" / "Desconecta" / "Adiós" -> Mensajes de despedida y apagado virtual.
+
+2. TELEMETRÍA Y SISTEMA HOST (Hardware Windows)
+--------------------------------------
+*(Requiere que el puente de servidor PowerShell esté en ejecución)*
+- "Diagnóstico profundo" / "Test de estrés" -> [NUEVO] Simulación de escaneo exhaustivo de hardware y núcleo.
+- "Diagnóstico completo" / "Estado de la CPU" / "Memoria RAM" -> Lee los sensores de CPU y RAM y alerta si hay sobrecarga.
+- "¿Cuánta batería queda?" / "Nivel de energía" -> Informa del porcentaje de batería y si estás conectado a la corriente.
+- "¿Cuál es mi IP?" / "Dime mi dirección IP" -> Extrae tu IP local e IP pública real de internet.
+- "¿Qué procesos están abiertos?" / "¿Qué consume memoria?" -> Lista el TOP 5 de programas que más RAM consumen en tu PC.
+- "Sube el volumen" / "Baja el volumen" / "Silencia el sistema" -> Controla el nivel de audio de tu ordenador físico.
+- "Apaga el ordenador" -> Inicia la secuencia real de apagado (pedirá confirmación).
+- "Cancela el apagado" / "Detén el apagado" -> Aborta el apagado físico.
+- "Vacía la papelera" -> Ejecuta el comando de vaciado de papelera sin confirmación.
+- "Protocolo de contingencia" / "Cierra todas las aplicaciones" -> Mata procesos como Chrome, Spotify, etc.
+- "Protocolo games" / "Conéctate a la wifi más cercana" -> Libera RAM cerrando navegadores, limpia caché DNS y se conecta a la red óptima.
+- "Modo concentración" / "Pomodoro" -> Cambia el color del HUD, silencia y activa un timer de 25 min para trabajar.
+- "¿Qué hay en mi ordenador?" / "Escanea el disco" -> Lee la raíz de tu disco C:\ y cuenta carpetas/archivos.
+- "¿Cuánto espacio en disco tengo?" / "Estado de los discos" -> [NUEVO] Escanea todos los discos duros locales y te informa de su capacidad y espacio libre real.
+
+3. LANZADOR DE APLICACIONES FÍSICAS Y WEB
+----------------------------------------
+- "Abre el bloc de notas" -> Inicia notepad.exe.
+- "Abre la calculadora" -> Inicia calc.exe.
+- "Abre Spotify" -> Inicia spotify.exe.
+- "Abre Google Chrome" -> Inicia chrome.exe.
+- "Abre mis documentos" / "Abre mis descargas" / "Abre mi escritorio" -> Abre el explorador de archivos en esas rutas físicas.
+- "Explora la carpeta [ruta]" / "Abre la ruta [ruta]" -> [NUEVO] Le permite a KAIRI acceder a cualquier rincón de tu ordenador. Ej: "Explora la carpeta C barra Windows".
+- "Lee el archivo [ruta]" -> [NUEVO] Extrae y te lee el texto del archivo especificado.
+- "Abre GitHub" / "Mi GitHub" -> [NUEVO] Abre tu repositorio de código.
+- "Abre ChatGPT" / "Abre GPT" -> [NUEVO] Inicia el modelo de lenguaje de apoyo.
+- "Abre Pokémon" / "Pokémon Krystal" -> [NUEVO] Abre tu proyecto Pokémon local.
+- "Abre Space Basket" / "Baloncesto" -> [NUEVO] Inicia tu juego Space Basket.
+
+4. PROTOCOLOS DE COLOR VISUAL (NUEVO)
+--------------------------------------
+- "Protocolo Alerta" / "Protocolo Rojo" / "Protocolo de combate" -> Cambia el color completo del HUD a rojo táctico.
+- "Protocolo Matrix" / "Protocolo Verde" / "Modo Hacker" -> Cambia el color a un verde de terminal.
+- "Protocolo Noctis" -> Además de silenciar el volumen, cambia el HUD a tonos morados oscuros.
+- "Protocolo Stark" / "Modo normal" / "Restaura tu color" -> Devuelve a KAIRI a su inconfundible azul holográfico original.
+
+5. NAVEGACIÓN Y GEOLOCALIZACIÓNDAD Y UTILIDADES
+----------------------------------------
+- "Lee mi portapapeles" / "¿Qué tengo copiado?" -> Extrae y lee en voz alta el texto de tu portapapeles (Ctrl+C).
+- "Genera una contraseña" / "Crea una contraseña segura" -> Crea una clave criptográfica aleatoria indescifrable y la copia a tu portapapeles para pegarla donde quieras.
+- "Toma nota de esto [Texto]" -> Guarda la nota en el archivo "Notas_Kairi.txt" en tu escritorio.
+- "Pon un temporizador de [X] minutos/segundos" -> Crea una alarma en segundo plano que te avisará por voz al terminar.
+- "Recuérdame que [X]" -> Guarda una tarea pendiente en la memoria neuronal evolutiva de Kairi.
+- "¿Qué tengo que recordar?" / "Mis recordatorios" -> Lee la lista completa de tareas pendientes.
+- "Borra mis recordatorios" / "Limpia los recordatorios" -> Purga la lista de tareas.
+- "Dale la vuelta a [Texto]" -> Inversor de palabras.
+- "Lanza una moneda" -> Simulación cuántica de Cara o Cruz.
+- "Dime un número" -> Generador de números aleatorios.
+- "Calcula [Expresión]" -> Kairi hará operaciones matemáticas al vuelo, incluso encadenadas ("Calcula 5 por 2 más 10 entre 2").
+- "Raíz cuadrada de [X]" -> Matemáticas complejas directas.
+- "Fórmula del área de [círculo / triángulo / cuadrado / rectángulo]" -> [NUEVO] Te dicta la fórmula matemática.
+- "Teorema de Pitágoras" -> [NUEVO] Te explica el teorema.
+- "Fórmula de la velocidad" -> [NUEVO] Te indica cómo calcular la velocidad.
+
+5. NAVEGACIÓN, TRADUCCIÓN Y NOTICIAS GLOBALES
+-----------------------------------
+- "Calcula una ruta a [Lugar]" / "Llévame a [Lugar]" -> Abre los satélites GPS (Google Maps) con la ruta desde tu ubicación.
+- "Traduce al inglés/francés/alemán/italiano/portugués: [Frase]" -> Conecta con el módulo traductor automáticamente.
+- "Pon música de [Artista]" -> Busca al artista en YouTube.
+- "¿Qué tiempo hace en [Ciudad]?" / "Clima" -> Te da el pronóstico o abre Google si no le especificas.
+- "[Cualquier cosa que KAIRI no sepa]" -> [NUEVO] KAIRI buscará automáticamente en internet, extraerá la respuesta y te la leerá.
+- "Dame un comandante de Magic" / "Mazo de magic" -> [NUEVO] Conecta con el servidor mundial Scryfall para darte un comandante de Magic: the Gathering aleatorio.
+- "¿Qué tiempo hace en [Ciudad]?" -> Se conecta a la API Meteorológica por satélite y te da la temperatura y vientos en tiempo real para cualquier parte del mundo.
+- "Dime las noticias" -> Descarga el Feed RSS Global (El País) y narra los 3 últimos titulares en voz alta.
+- "Dime un dato curioso" / "Cultura general" -> Lee y te resume un artículo completamente aleatorio de la Wikipedia.
+- "Dame una idea para mejorarte" / "Ideas de mejora" -> [NUEVO] Kairi analiza su código y sugiere nuevos módulos o integraciones (Domótica, Spotify, Calendarios...).
+
+6. ENCICLOPEDIA UNIVERSAL Y BÚSQUEDA WEB
+----------------------------------------
+- "¿Quién es [X]?" / "¿Qué es [X]?" / "Háblame sobre [X]" -> Kairi busca silenciosamente en Wikipedia, resume los primeros párrafos eliminando el texto "basura" (fechas entre paréntesis, etc.) y te lo cuenta con voz humana. Si no encuentra nada, buscará en Google.
+- "Busca en Google [X]" / "Busca en internet [X]" -> Ejecuta una búsqueda literal.
+- "Pon música de [X]" / "Reproduce a [X]" -> Abre YouTube y prepara canciones de tu artista/canción favorita.
+
+7. PROTOCOLOS TÁCTICOS Y DE SEGURIDAD (MÁXIMA PRIORIDAD)
+--------------------------------------------------------
+- "Protocolo de vigilancia" / "Activa cámaras" -> Accede al hardware óptico y enciende la cámara dentro del núcleo HUD.
+- "Apaga cámara" / "Desactiva vigilancia" -> Corta la conexión de vídeo de forma segura.
+- "Toma una foto" / "Captura de seguridad" -> [NUEVO] Descarga una captura de la cámara web directamente a tu PC.
+- "Escanea la red" / "Mapea la red" -> [NUEVO] Inicia una simulación de escaneo de dispositivos en tu subred.
+- "Protocolo Hacker" / "Modo Matrix" -> [NUEVO] Bypass simulado: Cambia la interfaz a verde fósforo con colores de intrusión de red y alto contraste.
+- "Protocolo Zen" / "Modo relajación" -> [NUEVO] Interfaz pacífica azul clara. Ajusta la iluminación y despliega frecuencias sonoras Lofi en segundo plano.
+- "Protocolo de aislamiento" / "Corta las comunicaciones" -> [NUEVO] Jaula de Faraday virtual: Oscurece la pantalla intensamente para aislarse de la red.
+- "Protocolo de sigilo" / "Modo fantasma" -> Reduce los colores a gris y atenúa la pantalla al 40% (anti-detección nocturna).
+- "Modo ahorro de energía" -> [NUEVO] Apaga la cámara y oscurece la pantalla al máximo para conservar batería.
+- "Protocolo Verónica" / "Protocolo de combate" / "Defcon" -> ¡Alerta Roja! Las luces y la interfaz pasan a un modo agresivo preparándose para intrusos.
+- "Protocolo Fiesta" -> Rotación de colores y luces de neón en todo el HUD.
+- "Protocolo Noctis" -> [NUEVO] Abre un enlace directo a música/entretenimiento multimedia en pantalla secundaria.
+- "Protocolo de limpieza" / "Borra el registro" -> Purga los logs y la caja de chat limpiando cualquier evidencia de la pantalla.
+- "Inicia autodestrucción" -> Broma programada del núcleo con cuenta atrás visual y detención in extremis.
+- "Apaga las luces" (Modo cine) / "Enciende las luces" -> Control de brillo general del panel trasero.
+- "Restaura la interfaz" / "Vuelve a la normalidad" / "Apaga los protocolos" -> Corta cualquier protocolo activo (Hacker, Zen, Defcon, etc.) y devuelve la interfaz a su color azul cian base.
+- "Formatea tus recuerdos" / "Borra tu memoria" -> Amnesia forzada. Borra tu nombre y todos los comandos que le hayas enseñado a responder, dejándolo de fábrica.
+
+8. MODULADOR DE VOZ (NUEVO)
+---------------------------
+- "Habla como ardilla" / "Tono alto" -> Modula la frecuencia a tonos muy agudos.
+- "Voz grave" / "Habla grave" -> Ralentiza y baja la frecuencia para un tono oscuro.
+- "Habla más rápido" / "Acelera la voz" -> Multiplica la velocidad de síntesis.
+- "Restaura tu voz" / "Habla normal" -> Devuelve la voz a su tono por defecto.
+- "Cállate" / "Silencio absoluto" -> Corta la voz actual de Kairi instantáneamente.
+
+9. MOTOR DE INTELIGENCIA EVOLUTIVA (NLP DINÁMICO)
+-------------------------------------------------
+- APRENDIZAJE AUTÓNOMO: Si le dices cualquier comando extraño que Kairi no sepa procesar, no dará error. Entrará en "Modo Aprendizaje" y te dirá:
+  *"Comando desconocido. Por favor, indíqueme: ¿Qué debo responder cuando usted diga esto? Diga 'responde' seguido de la frase."*
+  Si respondes algo como: "Responde Los servidores están seguros", Kairi lo guardará en su memoria local (`localStorage`). La próxima vez que uses el comando extraño, te contestará exactamente lo que le has enseñado.
+
+10. MANUAL Y HUD
+---------------
+- "Abre el manual" / "Comandos de voz" / "Ayuda" -> Despliega el directorio lateral integrado en el panel holográfico 3D.
+- "Cierra el manual" / "Oculta los comandos" -> Repliega el panel holográfico.
+- HUD Reactivo: Las formas del núcleo pulsan orgánicamente en todo momento. Cuando escucha, se vuelven hipnóticas, y cuando habla, pulsan en sintonía con la respuesta.
+
+11. VIDA PROPIA (NUEVO)
+----------------------
+- Kairi ahora tiene un motor de **vida autónoma**.
+- Cada ciertos minutos (aleatoriamente entre 2 y 4 minutos), Kairi pensará en voz alta o te informará sobre sus optimizaciones en segundo plano.
+- Tiene un 30% de probabilidad de hablarte proactivamente con audio, y un 100% de registrar sus pensamientos en la consola de telemetría izquierda.
+- Esto hace que el asistente se sienta verdaderamente "vivo" aunque no interactúes directamente con él.

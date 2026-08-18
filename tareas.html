@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.A.I.R.I. - Calendario y Tareas</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div class="container">
+        <div class="header">
+            <h1>K.A.I.R.I.</h1>
+            <p>Sistemas Stark Mk IV</p>
+        </div>
+
+        <div class="calendar-wrapper">
+            <div class="calendar-main glass-panel">
+                <div class="calendar-header">
+                    <button id="prev-month" class="glass-btn">&lt;</button>
+                    <h2 id="month-year-display">Cargando...</h2>
+                    <button id="next-month" class="glass-btn">&gt;</button>
+                </div>
+                
+                <div class="calendar-grid">
+                    <div class="calendar-day-header">DOM</div>
+                    <div class="calendar-day-header">LUN</div>
+                    <div class="calendar-day-header">MAR</div>
+                    <div class="calendar-day-header">MIE</div>
+                    <div class="calendar-day-header">JUE</div>
+                    <div class="calendar-day-header">VIE</div>
+                    <div class="calendar-day-header">SAB</div>
+                </div>
+                
+                <div class="calendar-grid" id="calendar-days">
+                    <!-- Días inyectados por JS -->
+                </div>
+            </div>
+            
+            <div class="calendar-sidebar glass-panel">
+                <h3 id="selected-date-display">Selecciona un día</h3>
+                
+                <div class="event-list" id="event-list">
+                    <!-- Eventos del día -->
+                </div>
+                
+                <div class="add-event-form">
+                    <input type="text" id="new-event-text" placeholder="Añadir evento a este día..." style="background: rgba(var(--bg-dark-rgb), 0.7); color: var(--main-color); border: 1px solid rgba(var(--main-rgb), 0.3); border-radius: 5px; padding: 10px;">
+                    <button id="btn-add-event" class="glass-btn">GUARDAR EVENTO</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- BOTTOM NAV BAR (MOBILE ONLY) -->
+    <div class="bottom-nav-bar">
+        <button class="bottom-nav-btn" onclick="window.location.href='index.html'">
+            <span style="font-size: 1.5rem;">🏠</span>
+            Inicio
+        </button>
+        <button class="bottom-nav-btn" onclick="window.location.href='clima.html'">
+            <span style="font-size: 1.5rem;">⛅</span>
+            Clima
+        </button>
+        <button class="bottom-nav-btn active" onclick="window.location.href='tareas.html'">
+            <span style="font-size: 1.5rem;">✓</span>
+            Tareas
+        </button>
+        <button class="bottom-nav-btn" onclick="window.location.href='focus.html'">
+            <span style="font-size: 1.5rem;">🧠</span>
+            Foco
+        </button>
+    </div>
+
+    <script src="nav.js"></script>
+    <script src="tareas.js"></script>
+    <script>
+        const canvas = document.getElementById('particles-canvas');
+        if (canvas && window.innerWidth > 768) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            for(let i=0; i<50; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 2, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 243, 255, ${Math.random() * 0.5})`;
+                ctx.fill();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+﻿<!DOCTYPE html>
+<html>
+<body>
+<div id="output"></div>
+<script>
+    function loadScript() {
+        const s = document.createElement('script');
+        s.src = 'test.js';
+        s.onload = () => {
+            document.getElementById('output').innerText = window.testResponse;
+            document.title = window.testResponse;
+        };
+        document.body.appendChild(s);
+    }
+    loadScript();
+</script>
+</body>
+</html>

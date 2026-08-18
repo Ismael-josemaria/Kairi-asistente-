@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.A.I.R.I. - Zona de Operaciones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .ops-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 120px);
+            padding: 20px;
+            gap: 15px;
+        }
+        .ops-toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: rgba(0, 20, 40, 0.6);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+        }
+        .ops-btn {
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid rgba(0, 243, 255, 0.5);
+            color: #00f3ff;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .ops-btn:hover {
+            background: rgba(0, 243, 255, 0.3);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+        .ops-url-bar {
+            flex-grow: 1;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            color: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .ops-url-bar:focus {
+            border-color: #00f3ff;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+        }
+        .ops-content {
+            display: flex;
+            gap: 20px;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        .ops-browser-frame {
+            flex-grow: 1;
+            background: #fff; /* Browser background white for readability */
+            border: 2px solid rgba(0, 243, 255, 0.5);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+            overflow: hidden;
+            position: relative;
+        }
+        #ops-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .ops-side-panel {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+        .ops-side-panel::-webkit-scrollbar {
+            width: 4px;
+        }
+        .ops-side-panel::-webkit-scrollbar-thumb {
+            background: rgba(0,243,255,0.3);
+            border-radius: 4px;
+        }
+        .ops-widget {
+            background: rgba(0, 20, 40, 0.6);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+        }
+        .ops-widget-title {
+            color: #00f3ff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+            padding-bottom: 5px;
+        }
+        .ops-scratchpad {
+            width: 100%;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px dashed rgba(0, 243, 255, 0.3);
+            color: #a5f3fc;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            resize: none;
+            outline: none;
+            border-radius: 4px;
+        }
+        .ops-scratchpad:focus {
+            border-color: #00f3ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ZONA DE OPERACIONES</h1>
+        <p>Terminal Táctica Integrada</p>
+    </div>
+
+    <div class="ops-container">
+        <!-- Barra de herramientas del navegador -->
+        <div class="ops-toolbar">
+            <button class="ops-btn" id="ops-back-btn" title="Atrás">&lt;</button>
+            <button class="ops-btn" id="ops-forward-btn" title="Adelante">&gt;</button>
+            <button class="ops-btn" id="ops-reload-btn" title="Recargar">↻</button>
+            <button class="ops-btn" id="ops-home-btn" title="Inicio">🏠</button>
+            <input type="text" id="ops-url-bar" class="ops-url-bar" placeholder="Busca en internet o introduce una URL..." autocomplete="off">
+            <button class="ops-btn" id="ops-go-btn" style="font-weight: bold;">BUSCAR</button>
+        </div>
+
+        <!-- Área Principal (Navegador + Widgets) -->
+        <div class="ops-content">
+            <div class="ops-browser-frame">
+                <iframe id="ops-iframe" src="https://duckduckgo.com" sandbox="allow-same-origin allow-scripts allow-forms allow-popups"></iframe>
+            </div>
+
+            <!-- Panel Lateral -->
+            <div class="ops-side-panel">
+                <div class="ops-widget">
+                    <div class="ops-widget-title">BLOC TÁCTICO</div>
+                    <textarea class="ops-scratchpad" id="ops-notes" placeholder="Notas rápidas de la misión..."></textarea>
+                </div>
+                <div class="ops-widget">
+                    <div class="ops-widget-title">ESTADO DE RED</div>
+                    <div style="color: #4ade80; font-family: 'Share Tech Mono';">CONEXIÓN: ESTABLE</div>
+                    <div style="color: #a5f3fc; font-family: 'Share Tech Mono'; margin-top: 5px;" id="ops-ip-display">IP: Obteniendo...</div>
+                </div>
+                <div class="ops-widget">
+                    <div class="ops-widget-title">ACCESOS RÁPIDOS</div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button class="ops-btn" onclick="document.getElementById('ops-url-bar').value='https://wikipedia.org'; document.getElementById('ops-go-btn').click();">Wikipedia</button>
+                        <button class="ops-btn" onclick="document.getElementById('ops-url-bar').value='https://github.com'; document.getElementById('ops-go-btn').click();">GitHub</button>
+                        <button class="ops-btn" onclick="document.getElementById('ops-url-bar').value='https://duckduckgo.com'; document.getElementById('ops-go-btn').click();">DuckDuckGo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="nav.js"></script>
+    <script src="operaciones.js"></script>
+</body>
+</html>

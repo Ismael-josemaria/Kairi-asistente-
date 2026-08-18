@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Osiris - Carpeta de Intercambio</title>
+    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* Estilos específicos para la vista de Binder (Carpeta 3x3) */
+        .binder-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 2px solid #2a2a35;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+        }
+        
+        .binder-slot {
+            aspect-ratio: 2.5 / 3.5;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .binder-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .binder-slot img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .binder-qty-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--accent);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            border: 2px solid var(--bg-dark);
+            z-index: 5;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-effects">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <nav class="navbar glass-panel">
+        <div class="logo">
+            <img src="logo.png" alt="Osiris Logo" class="app-logo">
+            <span>OSIRIS</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link"><i class="ph-bold ph-cards"></i> Colección</a>
+            <a href="trade.html" class="nav-link active"><i class="ph-bold ph-star"></i> Intercambios</a>
+            <a href="stats.html" class="nav-link"><i class="ph-bold ph-chart-bar"></i> Estadísticas</a>
+        </div>
+        <div class="nav-actions">
+            <button class="btn-icon header-btn radio-btn" id="btnRadio" onclick="toggleRadio()"
+                title="Radio Osiris: Iniciar Música">
+                <i class="ph-bold ph-music-notes"></i>
+            </button>
+            <audio id="osirisAudio" loop>
+                <source
+                    src="https://cdn.pixabay.com/download/audio/2022/01/21/audio_31743c58bc.mp3?filename=dark-ambient-11440.mp3"
+                    type="audio/mpeg">
+            </audio>
+        </div>
+    </nav>
+
+    <div class="main-layout" style="grid-template-columns: 1fr; overflow-y: auto;">
+        <section class="content" style="max-width: 1200px; margin: 0 auto; width: 100%;">
+            <div class="glass-panel" style="padding: 2rem; border-radius: 12px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 style="color: var(--accent); margin-bottom: 0.5rem;"><i class="ph-fill ph-star"></i> Carpeta de Intercambios</h2>
+                    <p style="color: var(--text-muted);">Cartas que has marcado como disponibles para cambiar.</p>
+                </div>
+                <div>
+                    <button class="btn-primary" onclick="copiarListaTrade()">
+                        <i class="ph-bold ph-copy"></i> Copiar Lista para Exportar
+                    </button>
+                </div>
+            </div>
+
+            <div id="binderPagesContainer" style="display: flex; flex-direction: column; gap: 4rem;">
+                <!-- Las páginas de 9 cartas se generarán aquí -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal de Carta (Reutilizado) -->
+    <div id="cartaModal" class="modal-overlay" onclick="cerrarModalCarta()">
+        <div class="modal-content glass-panel" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="cerrarModalCarta()"><i class="ph-bold ph-x"></i></button>
+            <div class="modal-body">
+                <div class="modal-img-container">
+                    <img id="modalImg" src="" alt="">
+                </div>
+                <div class="modal-info">
+                    <h2 id="modalNombre" class="modal-title">Nombre Carta</h2>
+                    <div class="modal-type-row">
+                        <span id="modalTipo" class="modal-type">Tipo completo</span>
+                        <span id="modalSet" class="modal-set badge">SET</span>
+                    </div>
+                    <div class="divider"></div>
+                    <div id="modalTexto" class="modal-oracle">Texto de la carta</div>
+                    <div class="divider"></div>
+                    <div class="modal-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Power/Toughness</span>
+                            <span id="modalPT" class="stat-value">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Precio</span>
+                            <span id="modalPrecio" class="stat-value" style="color: #10b981;">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

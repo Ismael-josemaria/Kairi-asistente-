@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.A.I.R.I. - Core Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div class="container">
+        <div class="header">
+            <h1>K.A.I.R.I.</h1>
+            <p>Sistemas Stark Mk IV</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; margin-top: 40px;">
+            <div class="glass-panel" style="max-width: 1000px; width: 90%; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; padding: 40px;">
+                <h2 style="color: #00f3ff; letter-spacing: 3px; font-size: 2rem; margin-bottom: 20px;">MONITOR DE SISTEMA HOST</h2>
+                <div id="sys-status" style="color: #a0aec0; margin-bottom: 30px; font-size: 1.2rem;">Estableciendo enlace de telemetría...</div>
+                
+                <div style="display: flex; justify-content: center; gap: 30px; width: 100%; margin-bottom: 30px; flex-wrap: wrap;">
+                    
+                    <div class="widget-panel" style="flex: 1; min-width: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <div class="widget-title">PROCESADOR (CPU)</div>
+                        <div id="cpu-value" style="font-size: 3rem; text-shadow: 0 0 15px #00f3ff; margin-top: 10px;">--%</div>
+                        <div style="width: 100%; background: rgba(0, 243, 255, 0.1); height: 10px; margin-top: 15px; border-radius: 5px; overflow: hidden;">
+                            <div id="cpu-bar" style="height: 100%; width: 0%; background: #00f3ff; transition: width 0.5s ease-out;"></div>
+                        </div>
+                    </div>
+
+                    <div class="widget-panel" style="flex: 1; min-width: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <div class="widget-title">MEMORIA PRINCIPAL (RAM)</div>
+                        <div id="ram-value" style="font-size: 3rem; text-shadow: 0 0 15px #00f3ff; margin-top: 10px;">--%</div>
+                        <div style="width: 100%; background: rgba(0, 243, 255, 0.1); height: 10px; margin-top: 15px; border-radius: 5px; overflow: hidden;">
+                            <div id="ram-bar" style="height: 100%; width: 0%; background: #00f3ff; transition: width 0.5s ease-out;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget-panel" style="flex: 1; min-width: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <div class="widget-title">ESTADO DE ENERGÍA</div>
+                        <div id="bat-value" style="font-size: 3rem; text-shadow: 0 0 15px #00f3ff; margin-top: 10px;">--%</div>
+                        <div id="bat-status" style="font-size: 1rem; color: #a0aec0; margin-top: 5px;">Cargando...</div>
+                        <div style="width: 100%; background: rgba(0, 243, 255, 0.1); height: 10px; margin-top: 15px; border-radius: 5px; overflow: hidden;">
+                            <div id="bat-bar" style="height: 100%; width: 0%; background: #00f3ff; transition: width 0.5s ease-out;"></div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de partículas base (fondo) -->
+    <script>
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        let particlesArray = [];
+        const numberOfParticles = 80;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.size > 0.2) this.size -= 0.01;
+                if (this.x < 0 || this.x > canvas.width) this.speedX = -this.speedX;
+                if (this.y < 0 || this.y > canvas.height) this.speedY = -this.speedY;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(0, 243, 255, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init();
+        });
+    </script>
+
+    <!-- Script principal de telemetría -->
+    <script>
+        async function fetchSystemStats() {
+            try {
+                // Fetch stats
+                const statRes = await fetch('/api/stats');
+                const statData = await statRes.json();
+                
+                if (statData.status === 'success') {
+                    document.getElementById('cpu-value').textContent = statData.cpu_percent + '%';
+                    document.getElementById('cpu-bar').style.width = statData.cpu_percent + '%';
+                    
+                    document.getElementById('ram-value').textContent = statData.ram_percent + '%';
+                    document.getElementById('ram-bar').style.width = statData.ram_percent + '%';
+                    
+                    // Colores de alerta
+                    document.getElementById('cpu-bar').style.background = statData.cpu_percent > 85 ? '#ff3333' : '#00f3ff';
+                    document.getElementById('cpu-value').style.textShadow = statData.cpu_percent > 85 ? '0 0 15px #ff3333' : '0 0 15px #00f3ff';
+                    
+                    document.getElementById('ram-bar').style.background = statData.ram_percent > 85 ? '#ff3333' : '#00f3ff';
+                    document.getElementById('ram-value').style.textShadow = statData.ram_percent > 85 ? '0 0 15px #ff3333' : '0 0 15px #00f3ff';
+                }
+
+                // Fetch battery
+                const batRes = await fetch('/api/battery');
+                const batData = await batRes.json();
+                
+                if (batData.status === 'success') {
+                    document.getElementById('bat-value').textContent = batData.level + '%';
+                    document.getElementById('bat-bar').style.width = batData.level + '%';
+                    document.getElementById('bat-status').textContent = batData.charging ? "Cargando (Conectado a la red)" : "Descargando (Uso de batería)";
+                    
+                    document.getElementById('bat-bar').style.background = batData.level < 20 && !batData.charging ? '#ff3333' : '#00f3ff';
+                    document.getElementById('bat-value').style.textShadow = batData.level < 20 && !batData.charging ? '0 0 15px #ff3333' : '0 0 15px #00f3ff';
+                }
+
+                document.getElementById('sys-status').textContent = "Enlace telemétrico establecido. Datos en tiempo real.";
+            } catch (e) {
+                document.getElementById('sys-status').textContent = "Error de telemetría. ¿Está el servidor host (start_server.ps1) activo?";
+            }
+        }
+
+        // Actualizar cada 3 segundos
+        fetchSystemStats();
+        setInterval(fetchSystemStats, 3000);
+    </script>
+    <script src="nav.js"></script>
+</body>
+</html>

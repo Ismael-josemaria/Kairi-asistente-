@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.A.I.R.I. - Rastreador Orbital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #iss-map {
+            width: 100%;
+            height: 450px;
+            border: 2px solid rgba(0, 243, 255, 0.4);
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+            filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+        }
+        .iss-stats {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 20, 40, 0.6);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            margin-top: 20px;
+            backdrop-filter: blur(5px);
+        }
+        .iss-stat-box { text-align: center; flex: 1; border-right: 1px solid rgba(0, 243, 255, 0.2); }
+        .iss-stat-box:last-child { border-right: none; }
+        .iss-val { font-size: 2.5rem; color: #fff; text-shadow: 0 0 10px #00f3ff; margin-bottom: 5px; font-weight: bold; }
+        .iss-lbl { font-size: 0.9rem; color: #a0aec0; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div class="container">
+        <div class="header">
+            <h1>K.A.I.R.I.</h1>
+            <p>Sistemas Stark Mk IV</p>
+        </div>
+
+        <div style="max-width: 1100px; margin: 0 auto; width: 100%;">
+            <h2 style="color: #00f3ff; text-align: center; letter-spacing: 3px; font-size: 2rem; margin-bottom: 10px;">RASTREADOR ORBITAL ESTACIÓN ESPACIAL (ISS)</h2>
+            <div id="iss-map"></div>
+            
+            <div class="iss-stats">
+                <div class="iss-stat-box">
+                    <div class="iss-val" id="iss-lat">--</div>
+                    <div class="iss-lbl">LATITUD</div>
+                </div>
+                <div class="iss-stat-box">
+                    <div class="iss-val" id="iss-lon">--</div>
+                    <div class="iss-lbl">LONGITUD</div>
+                </div>
+                <div class="iss-stat-box">
+                    <div class="iss-val" id="iss-vel">--</div>
+                    <div class="iss-lbl">VELOCIDAD (km/h)</div>
+                </div>
+                <div class="iss-stat-box">
+                    <div class="iss-val" id="iss-alt">--</div>
+                    <div class="iss-lbl">ALTITUD (km)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="nav.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="espacio.js"></script>
+</body>
+</html>

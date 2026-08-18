@@ -1,0 +1,6 @@
+[
+  {
+    "player": "ANÓNIMO",
+    "score": 500
+  }
+]

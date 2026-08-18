@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.A.I.R.I. - Bloc de Notas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .notes-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 400px;
+        }
+        .notes-list {
+            flex: 1;
+            overflow-y: auto;
+            text-align: left;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+        .note-item {
+            background: rgba(0, 243, 255, 0.05);
+            border-left: 3px solid var(--main-color);
+            padding: 15px;
+            margin-bottom: 10px;
+            color: #a0aec0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .note-item .delete-btn {
+            background: transparent;
+            color: #ff3333;
+            border: 1px solid #ff3333;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            transition: all 0.3s ease;
+        }
+        .note-item .delete-btn:hover {
+            background: rgba(255, 51, 51, 0.2);
+            box-shadow: 0 0 10px #ff3333;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+        .input-area input {
+            flex: 1;
+            background: rgba(0, 20, 40, 0.8);
+            border: 1px solid var(--main-color);
+            color: #fff;
+            padding: 15px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+        }
+        .input-area input:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--main-color);
+        }
+        .input-area button {
+            background: transparent;
+            border: 1px solid var(--main-color);
+            color: var(--main-color);
+            padding: 0 20px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        .input-area button:hover {
+            background: rgba(var(--main-rgb), 0.2);
+            box-shadow: 0 0 15px var(--main-color);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div class="container">
+        <div class="header">
+            <h1>K.A.I.R.I.</h1>
+            <p>Sistemas Stark Mk IV</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; margin-top: 40px;">
+            <div class="glass-panel" style="max-width: 800px; width: 90%; text-align: center; display: flex; flex-direction: column; align-items: center; min-height: 500px; padding: 40px;">
+                <h2 style="color: #00f3ff; letter-spacing: 3px; font-size: 2rem; margin-bottom: 20px;">ARCHIVOS PERSONALES (NOTAS)</h2>
+                
+                <div class="notes-container">
+                    <div class="notes-list" id="notes-list">
+                        <!-- Las notas aparecerán aquí -->
+                    </div>
+                    <div class="input-area">
+                        <input type="text" id="note-input" placeholder="Escriba un nuevo apunte para almacenar en memoria...">
+                        <button onclick="addNote()">GUARDAR</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de partículas base (fondo) -->
+    <script>
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        let particlesArray = [];
+        const numberOfParticles = 80;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.size > 0.2) this.size -= 0.01;
+                if (this.x < 0 || this.x > canvas.width) this.speedX = -this.speedX;
+                if (this.y < 0 || this.y > canvas.height) this.speedY = -this.speedY;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(0, 243, 255, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init();
+        });
+    </script>
+
+    <!-- Lógica del Bloc de Notas -->
+    <script>
+        let notes = JSON.parse(localStorage.getItem('kairi_notes')) || [];
+
+        function renderNotes() {
+            const list = document.getElementById('notes-list');
+            list.innerHTML = '';
+            
+            if (notes.length === 0) {
+                list.innerHTML = '<div style="text-align: center; color: #a0aec0; margin-top: 50px;">El archivo de notas está vacío, señor.</div>';
+                return;
+            }
+
+            notes.forEach((note, index) => {
+                const item = document.createElement('div');
+                item.className = 'note-item';
+                item.innerHTML = `
+                    <div style="flex: 1; padding-right: 20px;">${note}</div>
+                    <button class="delete-btn" onclick="deleteNote(${index})">BORRAR</button>
+                `;
+                list.appendChild(item);
+            });
+            list.scrollTop = list.scrollHeight;
+        }
+
+        function addNote() {
+            const input = document.getElementById('note-input');
+            const text = input.value.trim();
+            if (text) {
+                notes.push(text);
+                localStorage.setItem('kairi_notes', JSON.stringify(notes));
+                input.value = '';
+                renderNotes();
+            }
+        }
+
+        function deleteNote(index) {
+            notes.splice(index, 1);
+            localStorage.setItem('kairi_notes', JSON.stringify(notes));
+            renderNotes();
+        }
+
+        document.getElementById('note-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') addNote();
+        });
+
+        renderNotes();
+    </script>
+    <script src="nav.js"></script>
+</body>
+</html>

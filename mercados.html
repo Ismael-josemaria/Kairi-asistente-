@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.A.I.R.I. - Mercados</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        .markets-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 50px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .asset-card {
+            background: rgba(0, 20, 40, 0.7);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 10px;
+            padding: 30px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .asset-card:hover {
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.3);
+            transform: translateY(-5px);
+        }
+        .asset-name {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .asset-price {
+            font-size: 2.5rem;
+            color: #00f3ff;
+            font-family: 'Share Tech Mono', monospace;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+        .asset-change {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .positive {
+            color: #00ff88;
+            text-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+        }
+        .negative {
+            color: #ff3333;
+            text-shadow: 0 0 8px rgba(255, 51, 51, 0.5);
+        }
+        .loading-markets {
+            text-align: center;
+            color: #00f3ff;
+            font-size: 1.5rem;
+            margin-top: 50px;
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>K.A.I.R.I.</h1>
+            <p>Mercados Financieros & Criptografía</p>
+        </div>
+
+        <h2 style="color: #00f3ff; text-align: center; margin-top: 40px; letter-spacing: 3px;">MERCADO CRIPTO</h2>
+        <div id="markets-loading" class="loading-markets">Sincronizando con satélites financieros...</div>
+        <div id="markets-container" class="markets-container"></div>
+
+        <h2 style="color: #00f3ff; text-align: center; margin-top: 60px; letter-spacing: 3px;">DIVISAS MUNDIALES (FIAT)</h2>
+        <div id="fiat-loading" class="loading-markets">Descargando tipos de cambio globales...</div>
+        <div id="fiat-container" class="markets-container"></div>
+    </div>
+    
+    <script src="nav.js"></script>
+    <script src="mercados.js"></script>
+</body>
+</html>

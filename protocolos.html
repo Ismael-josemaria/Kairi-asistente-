@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.A.I.R.I. - Panel de Protocolos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .proto-btn {
+            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+            background: rgba(0, 15, 30, 0.8);
+            border: 2px solid rgba(0, 243, 255, 0.4);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+        }
+        .proto-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.5);
+            border-color: #00f3ff;
+        }
+        .proto-hacker:hover { border-color: #00ff00; box-shadow: 0 0 30px rgba(0, 255, 0, 0.5); text-shadow: 0 0 10px #00ff00; }
+        .proto-defcon:hover { border-color: #ff0000; box-shadow: 0 0 30px rgba(255, 0, 0, 0.5); text-shadow: 0 0 10px #ff0000; }
+        .proto-zen:hover { border-color: #00bcd4; box-shadow: 0 0 30px rgba(0, 188, 212, 0.5); text-shadow: 0 0 10px #00bcd4; }
+        .proto-mining:hover { border-color: #ffd700; box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); text-shadow: 0 0 10px #ffd700; }
+        .proto-saver:hover { border-color: #555; box-shadow: 0 0 30px rgba(255, 255, 255, 0.2); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>K.A.I.R.I.</h1>
+            <p>Sistemas Stark Mk IV</p>
+        </div>
+
+        <div class="glass-panel" style="margin: 40px auto; max-width: 800px; text-align: center;">
+            <h2 style="color: #00f3ff; letter-spacing: 3px; font-size: 2rem; margin-bottom: 30px;">PANEL DE CONTROL MAESTRO</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <button class="proto-btn proto-hacker" data-mode="hacker-mode">MODO MATRIX (Hacker)</button>
+                <button class="proto-btn proto-defcon" data-mode="defcon-mode">ALERTA ROJA (Defcon)</button>
+                <button class="proto-btn proto-zen" data-mode="zen-mode">MODO RELAJACIÓN (Zen)</button>
+                <button class="proto-btn proto-mining" data-mode="mining-mode">SIMULADOR MINERÍA</button>
+                <button class="proto-btn proto-saver" data-mode="energy-saver-mode">AHORRO DE ENERGÍA</button>
+                <button class="proto-btn" data-mode="normal" style="grid-column: span 2; border-color: #fff; text-shadow: 0 0 10px #fff;">RESTAURAR A LA NORMALIDAD</button>
+            </div>
+            
+            <h3 style="color: #a0aec0; margin-top: 40px; margin-bottom: 20px; border-bottom: 1px solid rgba(0, 243, 255, 0.3); padding-bottom: 10px;">AJUSTES DEL NÚCLEO</h3>
+            <div style="display: flex; justify-content: center; gap: 20px;">
+                <button id="btn-silenciar" class="proto-btn" style="padding: 10px 20px; font-size: 1rem;">SILENCIAR VOZ</button>
+                <button id="btn-restaurar-voz" class="proto-btn" style="padding: 10px 20px; font-size: 1rem;">RESTAURAR VOZ</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="nav.js"></script>
+    <script src="protocolos.js"></script>
+</body>
+</html>
