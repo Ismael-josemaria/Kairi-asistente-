@@ -357,14 +357,17 @@ if (SpeechRecognition) {
         if (rawText !== '') {
             userText.textContent = `Tú (escuchando...): "${rawText}"`;
 
-            // Wait 2 seconds (2000ms) of silence before assuming the user has finished speaking
-            const timeToWait = 1000;
+            // Aumentamos a 2 segundos (2000ms) para que no te corte si haces una pequeña pausa al hablar
+            const timeToWait = 2000;
 
             captureTimeout = setTimeout(() => {
-                // Wake Word Logic: Solo procesa si contiene "kairi" si está activado
+                // Regex avanzado para atrapar KAIRI aunque el navegador lo transcriba mal
+                const wakeWordRegex = /kairi|kairy|cairi|kyrie|kylie|carry|cairie|hayri|kiri/i;
+                
+                // Wake Word Logic: Solo procesa si contiene la palabra (o derivado) si está activado
                 if (window.isWakeWordActive) {
-                    if (!rawText.includes("kairi")) {
-                        // Eliminamos el mensaje de (ignorado) para que no moleste en pantalla, volvemos a mostrar el estado inactivo
+                    if (!wakeWordRegex.test(rawText)) {
+                        // Borramos el texto solo cuando termina de escuchar y vemos que no iba dirigido a ella
                         userText.textContent = ``;
                         return; // Silencioso, seguimos escuchando
                     }
@@ -372,8 +375,9 @@ if (SpeechRecognition) {
 
                 if (window.playSFX) window.playSFX('process');
 
-                // Extraemos el comando real eliminando la palabra "kairi" (y posibles prefijos como "oye") sin borrar el resto de la frase
-                const cleanCommand = rawText.replace(/\b(?:oye\s+|hola\s+)?kairi\b/g, '').trim() || 'hola';
+                // Extraemos el comando real eliminando la palabra de activación
+                const cleanRegex = new RegExp('\\b(?:oye\\s+|hola\\s+)?(?:kairi|kairy|cairi|kyrie|kylie|carry|cairie|hayri|kiri)\\b', 'gi');
+                const cleanCommand = rawText.replace(cleanRegex, '').trim() || 'hola';
 
                 isListening = false;
                 isProcessing = true;
