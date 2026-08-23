@@ -2822,7 +2822,7 @@ class AntigravityCore {
                                     // Limpiamos los asteriscos de Markdown para que no los lea
                                     const speakText = sentenceBuffer.replace(/\*/g, '').trim();
                                     if (window.speak && speakText.length > 0) {
-                                        window.speak(speakText);
+                                        window.speak(speakText, false);
                                     }
                                     sentenceBuffer = ""; // Vaciamos el buffer
                                 }
@@ -2835,7 +2835,7 @@ class AntigravityCore {
                 if (sentenceBuffer.trim().length > 0) {
                     const speakText = sentenceBuffer.replace(/\*/g, '').trim();
                     if (window.speak && speakText.length > 0) {
-                        window.speak(speakText);
+                        window.speak(speakText, false);
                     }
                 }
 

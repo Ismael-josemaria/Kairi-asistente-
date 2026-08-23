@@ -485,7 +485,7 @@ hud.addEventListener('dblclick', async () => {
 
 let speakingTimeout = null;
 
-function speak(text) {
+function speak(text, cancelPrevious = true) {
     if (localStorage.getItem('KAIRI_voice_muted') === 'true') {
         typeWriter(KAIRIText, `KAIRI (Mute): ${text}`, 30);
         return;
@@ -495,7 +495,9 @@ function speak(text) {
     if (speakingTimeout) clearTimeout(speakingTimeout);
 
     // Prevención de bloqueo TTS (Garbage collection bug in Chrome)
-    window.speechSynthesis.cancel();
+    if (cancelPrevious) {
+        window.speechSynthesis.cancel();
+    }
     window.speechSynthesis.resume();
 
     isSpeaking = true;
