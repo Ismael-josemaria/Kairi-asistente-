@@ -10,6 +10,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         { id: 'elmundo', title: 'EL MUNDO (Actualidad)', url: 'https://e00-elmundo.uecdn.es/elmundo/rss/portada.xml' },
         { id: 'confidencial', title: 'EL CONFIDENCIAL', url: 'https://rss.elconfidencial.com/espana/' },
         { id: 'abc', title: 'ABC (Nacional)', url: 'https://www.abc.es/rss/feeds/abc_espana.xml' },
+        { id: '20minutos', title: '20 MINUTOS', url: 'https://www.20minutos.es/rss/' },
+        { id: 'eldiario', title: 'EL DIARIO', url: 'https://www.eldiario.es/rss/' },
+        { id: 'rtve', title: 'RTVE NOTICIAS', url: 'https://www.rtve.es/api/noticias/rss' },
+        { id: 'bbc', title: 'BBC MUNDO', url: 'https://feeds.bbci.co.uk/mundo/rss.xml' },
         { id: 'marca', title: 'MARCA (Deportes)', url: 'https://e00-marca.uecdn.es/rss/portada.xml' },
         { id: 'as', title: 'AS (Deportes)', url: 'https://as.com/rss/portada.xml' },
         { id: 'vandal', title: 'VANDAL (Videojuegos)', url: 'https://vandal.elespanol.com/xml.cgi' },
@@ -72,7 +76,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (data.status === 'ok' && data.items && data.items.length > 0) {
                 gridDiv.innerHTML = ''; // Limpiar el "Cargando..."
 
-                data.items.slice(0, 4).forEach((item, cardIndex) => {
+                data.items.slice(0, 6).forEach((item, cardIndex) => {
                     let imageUrl = 'https://via.placeholder.com/400x200/001428/00f3ff?text=K.A.I.R.I.+NEWS';
                     if (item.enclosure && item.enclosure.link) imageUrl = item.enclosure.link;
                     else if (item.thumbnail) imageUrl = item.thumbnail;
@@ -86,17 +90,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                     let desc = item.description ? item.description.replace(/<[^>]+>/g, '').trim() : "Sin descripción disponible.";
                     if (desc.length > 120) desc = desc.substring(0, 117) + '...';
+                    
+                    let dateHtml = '';
+                    if (item.pubDate) {
+                        const d = new Date(item.pubDate);
+                        if (!isNaN(d.getTime())) {
+                            dateHtml = `<div style="font-size: 0.85rem; color: #a0aec0; margin-bottom: 10px; font-family: 'Share Tech Mono';"><span style="color: #00f3ff;">🕒</span> ${d.toLocaleDateString()} ${d.toLocaleTimeString()}</div>`;
+                        }
+                    }
 
                     const card = document.createElement('div');
                     card.className = 'news-card';
                     card.style.animationDelay = `${cardIndex * 0.1}s`;
 
                     card.innerHTML = `
-                        <div class="news-image" style="background-image: url('${imageUrl}');"></div>
-                        <div class="news-content">
-                            <h3 class="news-title">${item.title}</h3>
-                            <p class="news-desc">${desc}</p>
-                            <a href="${item.link}" target="_blank" class="news-btn">LEER MÁS</a>
+                        <div class="news-image" style="background-image: url('${imageUrl}'); height: 200px;"></div>
+                        <div class="news-content" style="padding: 25px;">
+                            ${dateHtml}
+                            <h3 class="news-title" style="font-size: 1.3rem; margin-bottom: 15px; color: #fff; line-height: 1.4;">${item.title}</h3>
+                            <p class="news-desc" style="color: #cbd5e1; flex-grow: 1; line-height: 1.6; font-size: 0.95rem;">${desc}</p>
+                            <a href="${item.link}" target="_blank" class="news-btn" style="margin-top: 20px; display: inline-block; text-align: center; width: 100%; padding: 12px; font-size: 1rem; letter-spacing: 2px;">LEER MÁS</a>
                         </div>
                     `;
                     gridDiv.appendChild(card);

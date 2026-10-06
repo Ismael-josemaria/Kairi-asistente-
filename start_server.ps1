@@ -848,8 +848,8 @@ while ($listener.IsListening) {
         $buffer = [System.Text.Encoding]::UTF8.GetBytes($json)
         $response.ContentType = "application/json"
         $response.ContentLength64 = $buffer.Length
-        $response.OutputStream.Write($buffer, 0, $buffer.Length)
-        $response.Close()
+        try { $response.OutputStream.Write($buffer, 0, $buffer.Length) } catch {}
+        try { $response.Close() } catch {}
         continue
     }
 
@@ -864,9 +864,9 @@ while ($listener.IsListening) {
         elseif ($path.EndsWith(".js")) { $response.ContentType = "application/javascript; charset=utf-8" }
         elseif ($path.EndsWith(".css")) { $response.ContentType = "text/css; charset=utf-8" }
         elseif ($path.EndsWith(".txt")) { $response.ContentType = "text/plain; charset=utf-8" }
-        $response.OutputStream.Write($content, 0, $content.Length)
+        try { $response.OutputStream.Write($content, 0, $content.Length) } catch {}
     } else {
         $response.StatusCode = 404
     }
-    $response.Close()
+    try { $response.Close() } catch {}
 }
