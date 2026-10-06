@@ -2876,38 +2876,31 @@ class AntigravityCore {
     // Módulo de Extracción Global con AbortController
     async fetchGlobalData(query) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 segundos de timeout
+        const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 segundos de timeout
 
         try {
-            this.log(`ENLAZANDO CON REDES DE DATOS GLOBALES PARA: ${query.toUpperCase()}`);
-            const url = `https://es.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=1&origin=*`;
+            this.log(`ENLAZANDO CON RED NEURONAL EXTERNA PARA: ${query.toUpperCase()}`);
+            
+            const systemPrompt = `Eres K.A.I.R.I. (Knowledge Artificial Intelligence & Robotic Interface), una inteligencia artificial avanzada creada por Ismael Josemaria. El usuario (tu creador) te acaba de decir: "${query}". Responde de forma muy breve (máximo 2-3 frases), directa, útil y en español. Mantén una personalidad leal, inteligente y un poco robótica al estilo J.A.R.V.I.S.`;
+            const url = `https://text.pollinations.ai/${encodeURIComponent(systemPrompt)}`;
 
             const response = await fetch(url, { signal: controller.signal });
             clearTimeout(timeoutId);
 
             if (response.ok) {
-                const data = await response.json();
-                if (data.query && data.query.pages) {
-                    const pages = data.query.pages;
-                    const pageId = Object.keys(pages)[0];
-                    let extract = pages[pageId].extract;
-
-                    // Limpiar texto para TTS: quitar contenido entre paréntesis (ej: fechas de nacimiento)
-                    extract = extract.replace(/\s*\(.*?\)\s*/g, ' ');
-
-                    let sentences = extract.split('. ');
-                    let summary = sentences.slice(0, 2).join('. ').trim();
-                    if (!summary.endsWith('.')) summary += '.';
-
-                    return `He accedido a los archivos globales, señor. Según los registros: ${summary}`;
+                const text = await response.text();
+                if (text && text.length > 0) {
+                    return text.replace(/[*_#]/g, ''); // Limpiar markdown para el TTS
                 }
             }
+            
+            // Fallback a Búsqueda Web
             window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
-            return `No he encontrado un registro exacto en los archivos primarios, pero he lanzado una búsqueda visual en sus monitores para "${query}".`;
+            return `No he podido procesar eso a nivel neuronal, pero he lanzado una búsqueda en sus monitores para "${query}".`;
 
         } catch (error) {
             clearTimeout(timeoutId);
-            return `Mis conexiones TCP/IP están bloqueadas o han agotado el tiempo de espera. No puedo acceder a la red global en este momento, ${this.getBossName()}.`;
+            return `Mi enlace neuronal externo está inactivo. No puedo acceder a la red de IA en este momento, ${this.getBossName()}.`;
         }
     }
 
