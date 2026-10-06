@@ -51,7 +51,7 @@ try {
         Write-Host "K.A.I.R.I. Core Bridge activado en http://localhost:$port" -ForegroundColor Cyan
     }
     Write-Host "Esperando directivas del núcleo web..."
-    [System.Diagnostics.Process]::Start("chrome", "--app=http://localhost:$port --kiosk")
+    [System.Diagnostics.Process]::Start("chrome", "--app=http://localhost:$port")
 } catch {
     Write-Host "ERROR CRÍTICO: No se pudo iniciar el servidor en el puerto $port." -ForegroundColor Red
     Write-Host "Es posible que otra aplicación ya esté utilizando este puerto." -ForegroundColor Yellow

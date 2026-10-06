@@ -537,6 +537,28 @@ class AntigravityCore {
                 }
             },
             {
+                patterns: ['modo mini', 'modo widget', 'ponte en segundo plano', 'modo flotante', 'ponte en pequeño'],
+                handler: () => {
+                    this.log('Activando modo mini / widget...');
+                    try {
+                        window.resizeTo(400, 600);
+                        window.moveTo(window.screen.availWidth - 420, window.screen.availHeight - 640);
+                    } catch(e) {}
+                    return "Activando modo mini. Seguimos trabajando en segundo plano.";
+                }
+            },
+            {
+                patterns: ['modo normal', 'modo completo', 'restaurar pantalla', 'vuelve a la normalidad', 'pantalla completa'],
+                handler: () => {
+                    this.log('Restaurando modo normal...');
+                    try {
+                        window.resizeTo(1280, 800);
+                        window.moveTo((window.screen.availWidth - 1280) / 2, (window.screen.availHeight - 800) / 2);
+                    } catch(e) {}
+                    return "Restaurando tamaño de ventana al modo completo.";
+                }
+            },
+            {
                 patterns: ['abre valorant', 'inicia valorant', 'jugar valorant'],
                 handler: async () => {
                     try {
