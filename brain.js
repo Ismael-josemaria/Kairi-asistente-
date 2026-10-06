@@ -559,6 +559,63 @@ class AntigravityCore {
                 }
             },
             {
+                patterns: ['ejecuta comando', 'consola', 'ejecuta en consola', 'ejecuta sistema'],
+                handler: async (text) => {
+                    const prefixes = ['ejecuta comando', 'ejecuta en consola', 'ejecuta sistema', 'consola'];
+                    let command = text.toLowerCase();
+                    for (let p of prefixes) {
+                        if (command.startsWith(p)) {
+                            command = command.substring(p.length).trim();
+                            break;
+                        }
+                    }
+                    if (!command) return "No has especificado qué comando quieres ejecutar.";
+                    
+                    this.log('Ejecutando comando nativo: ' + command);
+                    try {
+                        const res = await fetch('/api/run_cmd', {
+                            method: 'POST',
+                            body: command
+                        });
+                        const data = await res.json();
+                        if (data.status === 'success' && data.output) {
+                            this.log('Salida del sistema:\\n' + data.output.substring(0, 300));
+                            return "Comando ejecutado con éxito. Resultados impresos en los registros del núcleo.";
+                        }
+                        return "Comando ejecutado en el sistema anfitrión.";
+                    } catch(e) {
+                        return "Hubo un error de red al contactar con el sistema host.";
+                    }
+                }
+            },
+            {
+                patterns: ['crea una nota que diga', 'anota esto', 'escribe una nota', 'tomar nota'],
+                handler: async (text) => {
+                    const prefixes = ['crea una nota que diga', 'anota esto', 'escribe una nota que diga', 'escribe una nota', 'tomar nota'];
+                    let noteText = text;
+                    for (let p of prefixes) {
+                        if (noteText.toLowerCase().startsWith(p)) {
+                            noteText = noteText.substring(p.length).trim();
+                            break;
+                        }
+                    }
+                    if (!noteText) return "No me has dicho qué quieres que anote.";
+                    
+                    this.log('Guardando nota en el escritorio...');
+                    try {
+                        const safeText = noteText.replace(/"/g, '\\"');
+                        const cmd = `$filename = "Nota_KAIRI_" + (Get-Date -Format "yyyyMMdd_HHmmss") + ".txt"; $path = Join-Path [Environment]::GetFolderPath("Desktop") $filename; Set-Content -Path $path -Value "${safeText}" -Encoding UTF8`;
+                        await fetch('/api/run_cmd', {
+                            method: 'POST',
+                            body: cmd
+                        });
+                        return "Nota creada y guardada en tu escritorio exitosamente.";
+                    } catch(e) {
+                        return "Hubo un error al intentar crear el archivo de nota.";
+                    }
+                }
+            },
+            {
                 patterns: ['abre valorant', 'inicia valorant', 'jugar valorant'],
                 handler: async () => {
                     try {

@@ -853,6 +853,33 @@ while ($listener.IsListening) {
         continue
     }
 
+    if ($path.StartsWith("api/run_cmd")) {
+        try {
+            if ($request.HttpMethod -eq "POST") {
+                $reader = New-Object System.IO.StreamReader($request.InputStream, [System.Text.Encoding]::UTF8)
+                $body = $reader.ReadToEnd()
+                $reader.Close()
+                
+                # Ejecutar comando y capturar salida
+                $result = Invoke-Expression $body | Out-String
+                
+                # Escapar para JSON de forma básica
+                $safeResult = $result -replace '\\', '\\\\' -replace '"', '\"' -replace "`n", '\n' -replace "`r", '\r'
+                $json = '{"status":"success", "output":"' + $safeResult + '"}'
+            } else {
+                $json = '{"status":"error", "message":"Use método POST"}'
+            }
+        } catch {
+            $json = '{"status":"error", "message":"Error al ejecutar el comando en el sistema"}'
+        }
+        $buffer = [System.Text.Encoding]::UTF8.GetBytes($json)
+        $response.ContentType = "application/json"
+        $response.ContentLength64 = $buffer.Length
+        try { $response.OutputStream.Write($buffer, 0, $buffer.Length) } catch {}
+        try { $response.Close() } catch {}
+        continue
+    }
+
     # ------------------ SERVIDOR WEB ESTÁTICO ------------------
     if ($path -eq "") { $path = "index.html" }
     $fullPath = Join-Path $PSScriptRoot $path
