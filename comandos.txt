@@ -25,7 +25,6 @@
 - "Abre el radar global" / "Abre el clima" -> Despliega `clima.html` con satélites meteorológicos.
 - "Abre el estado del sistema" / "Monitor de sistema" -> [NUEVO] Despliega `sistema.html`, un panel de control con CPU, RAM y energía en tiempo real.
 - "Abre mis notas" / "Bloc de notas de kairi" -> [NUEVO] Abre `notas.html`, un bloc de notas holográfico enlazado a la memoria local.
-- "Abre Osiris" / "Activa el protocolo Osiris" -> [NUEVO] Inicia la interfaz de tu proyecto MTG Osiris integrada nativamente en KAIRI.
 - "Crea una carpeta llamada [Nombre]" -> Crea una carpeta física en tu escritorio (Requiere start_server.ps1).
 - "Crea una nota que diga [Texto]" / "Anota esto: [Texto]" -> [NUEVO] Genera un archivo de texto en el escritorio con lo que le dictes.
 - "Duerme" / "Desconecta" / "Adiós" -> Mensajes de despedida y apagado virtual.

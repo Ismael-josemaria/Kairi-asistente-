@@ -7,10 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // SPA Router
     window.navigateModule = function(url) {
-        if (url === 'osiris.html') {
-            window.location.href = 'osiris.html';
-            return;
-        }
         if (window.top !== window.self) {
             window.top.loadModule(url);
         } else {
@@ -35,8 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { href: 'tetris.html', text: 'SIMULADOR TÁCTICO' },
         { href: 'espacio.html', text: 'ISS TRACKER' },
         { href: 'hacker.html', text: 'TERMINAL' },
-        { href: 'protocolos.html', text: 'PROTOCOLOS' },
-        { href: 'osiris.html', text: 'OSIRIS MTG' }
+        { href: 'protocolos.html', text: 'PROTOCOLOS' }
     ];
 
     // Obtener la página actual

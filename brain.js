@@ -537,14 +537,6 @@ class AntigravityCore {
                 }
             },
             {
-                patterns: ['abre osiris', 'inicia osiris', 'activa el protocolo osiris'],
-                handler: () => {
-                    this.log('INICIANDO ENTORNO OSIRIS...');
-                    setTimeout(() => window.location.href = 'osiris.html', 1500);
-                    return "Activando el protocolo Osiris. Entrando a la interfaz de cartas.";
-                }
-            },
-            {
                 patterns: ['abre valorant', 'inicia valorant', 'jugar valorant'],
                 handler: async () => {
                     try {
