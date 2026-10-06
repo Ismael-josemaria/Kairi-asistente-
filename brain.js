@@ -616,6 +616,21 @@ class AntigravityCore {
                 }
             },
             {
+                patterns: ['háblame sobre', 'hablame sobre', 'busca en wikipedia', 'quién es', 'qué es', 'quien es', 'que es'],
+                handler: async (text) => {
+                    const prefixes = ['háblame sobre', 'hablame sobre', 'busca en wikipedia sobre', 'busca en wikipedia', 'quién es', 'qué es', 'quien es', 'que es'];
+                    let query = text.toLowerCase();
+                    for (let p of prefixes) {
+                        if (query.startsWith(p)) {
+                            query = query.substring(p.length).trim();
+                            break;
+                        }
+                    }
+                    if (!query) return "No he escuchado sobre qué quieres que busque.";
+                    return await this.fetchWikipediaData(query);
+                }
+            },
+            {
                 patterns: ['abre valorant', 'inicia valorant', 'jugar valorant'],
                 handler: async () => {
                     try {
@@ -2901,6 +2916,41 @@ class AntigravityCore {
         } catch (error) {
             clearTimeout(timeoutId);
             return `Mi enlace neuronal externo está inactivo. No puedo acceder a la red de IA en este momento, ${this.getBossName()}.`;
+        }
+    }
+
+    async fetchWikipediaData(query) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+        try {
+            this.log(`BUSCANDO EN WIKIPEDIA: ${query.toUpperCase()}`);
+            const url = `https://es.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=1&origin=*`;
+
+            const response = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.query && data.query.pages) {
+                    const pages = data.query.pages;
+                    const pageId = Object.keys(pages)[0];
+                    let extract = pages[pageId].extract;
+
+                    // Limpiar texto para TTS: quitar contenido entre paréntesis
+                    extract = extract.replace(/\s*\(.*?\)\s*/g, ' ');
+
+                    let sentences = extract.split('. ');
+                    let summary = sentences.slice(0, 2).join('. ').trim();
+                    if (!summary.endsWith('.')) summary += '.';
+
+                    return `Según los archivos de Wikipedia: ${summary}`;
+                }
+            }
+            return `No he encontrado información sobre "${query}" en Wikipedia.`;
+        } catch (error) {
+            clearTimeout(timeoutId);
+            return `No he podido conectar con Wikipedia en este momento.`;
         }
     }
 
