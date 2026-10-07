@@ -2892,7 +2892,8 @@ class AntigravityCore {
                 return response;
             } else if (bestMatch.responses) {
                 const idx = Math.floor(Math.random() * bestMatch.responses.length);
-                return bestMatch.responses[idx]();
+                const result = bestMatch.responses[idx];
+                return typeof result === 'function' ? result() : result;
             }
         }
 

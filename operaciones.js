@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             // Es una búsqueda
-            finalUrl = 'https://duckduckgo.com/?q=' + encodeURIComponent(finalUrl);
+            finalUrl = 'https://lite.duckduckgo.com/lite/?q=' + encodeURIComponent(finalUrl);
         }
 
         iframe.src = finalUrl;
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     homeBtn.addEventListener('click', () => {
-        const homeUrl = 'https://duckduckgo.com';
+        const homeUrl = 'https://lite.duckduckgo.com/lite/';
         iframe.src = homeUrl;
         urlBar.value = homeUrl;
     });
