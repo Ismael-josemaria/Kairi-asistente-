@@ -959,11 +959,48 @@ body {
     /* NO se cambia el animation duration para evitar el 'parón' del reinicio */
 }
 
-/* Efecto al escuchar en el Núcleo Orgánico */
-.hud-container.listening .hud-core {
-    background: radial-gradient(circle, rgba(var(--main-rgb), 0.7) 0%, rgba(var(--bg-dark-rgb), 0.8) 80%);
-    box-shadow: 0 0 80px rgba(var(--main-rgb), 0.8), inset 0 0 60px rgba(var(--main-rgb), 0.9);
-    /* NO se cambia el animation duration para evitar el 'parón' del reinicio */
+/* Efecto al escuchar en el Núcleo Orgánico (Fusión Siri + Iron Man) */
+.hud-container.listening .hud-core,
+.hud-container.speaking .hud-core {
+    background: radial-gradient(circle, rgba(var(--bg-dark-rgb), 0.5) 0%, rgba(var(--main-rgb), 0.3) 100%);
+    box-shadow: 0 0 100px rgba(var(--main-rgb), 0.8), inset 0 0 80px rgba(var(--main-rgb), 0.9);
+    position: relative;
+    overflow: hidden;
+}
+
+/* El Orbe Holográfico de Siri animado */
+.hud-container.listening .hud-core::after,
+.hud-container.speaking .hud-core::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(from 0deg, rgba(255, 42, 133, 0.7), rgba(138, 43, 226, 0.7), rgba(0, 243, 255, 0.8), rgba(255, 42, 133, 0.7));
+    border-radius: 50%;
+    animation: siriSpin 4s linear infinite, siriPulse 1s ease-in-out infinite alternate;
+    mix-blend-mode: screen;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.hud-container.speaking .hud-core::after {
+    /* Al hablar, la animación es más intensa y rápida */
+    animation: siriSpin 2s linear infinite, siriPulseSpeaking 0.4s ease-in-out infinite alternate;
+    background: conic-gradient(from 0deg, rgba(0, 243, 255, 0.8), rgba(255, 255, 255, 0.9), rgba(138, 43, 226, 0.8), rgba(0, 243, 255, 0.8));
+}
+
+@keyframes siriSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes siriPulse {
+    0% { filter: blur(25px) hue-rotate(0deg); transform: scale(0.8) rotate(0deg); }
+    100% { filter: blur(35px) hue-rotate(30deg); transform: scale(1.1) rotate(180deg); }
+}
+
+@keyframes siriPulseSpeaking {
+    0% { filter: blur(20px) hue-rotate(0deg) brightness(1.2); transform: scale(0.9) rotate(0deg); }
+    100% { filter: blur(40px) hue-rotate(60deg) brightness(1.6); transform: scale(1.2) rotate(180deg); }
 }
 
 /* Geometría Wireframe: Meridianos y Paralelos */

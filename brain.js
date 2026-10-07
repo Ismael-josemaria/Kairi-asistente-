@@ -2505,6 +2505,64 @@ class AntigravityCore {
             return "Borrando todos sus recordatorios. Memoria purgada y lista para nuevas tareas.";
         }
 
+        // --- EVOLUCIÓN SIRI: Fluidez y Herramientas Rápidas ---
+        
+        // Lanzar una moneda
+        if (text.match(/tira una moneda|lanza una moneda|cara o cruz/)) {
+            const res = Math.random() < 0.5 ? "cara" : "cruz";
+            return `He lanzado la moneda virtual. Ha salido ${res}.`;
+        }
+
+        // Chistes / Personalidad
+        if (text.match(/cu[eé]ntame un chiste|dime un chiste/)) {
+            const chistes = [
+                "¿Qué hace una abeja en el gimnasio? ¡Zum-ba!",
+                "¿Por qué los pájaros no usan Facebook? Porque ya tienen Twitter.",
+                "¿Cuál es el colmo de un electricista? No encontrar su corriente de pensamiento.",
+                "Soy una inteligencia artificial avanzada, pero aún no entiendo por qué cruzó la gallina la carretera."
+            ];
+            return chistes[Math.floor(Math.random() * chistes.length)];
+        }
+
+        if (text.match(/qui[eé]n es mejor t[uú] o siri|eres mejor que siri/)) {
+            return "Siri es una colega muy respetable de Apple, pero yo he sido diseñada con la estética de Industrias Stark exclusivamente para ti.";
+        }
+
+        // Ortografía (Deletrear)
+        const spellMatch = text.match(/(?:como se escribe|cómo se escribe|deletrea) (.*)/);
+        if (spellMatch && !text.includes('en ingles') && !text.includes('en inglés')) {
+            const word = spellMatch[1].trim();
+            const spelling = word.replace(/\s+/g, '').split('').join(' - ').toUpperCase();
+            return `La palabra se deletrea así: ${spelling}.`;
+        }
+
+        // Definiciones Rápidas
+        const defMatch = text.match(/(?:qu[eé] significa la palabra|define la palabra|define) (.*)/);
+        if (defMatch) {
+            const word = defMatch[1].trim();
+            return await this.fetchWikipediaData(word);
+        }
+
+        // Conversiones de Unidades Básicas
+        const convMatch = text.match(/cu[aá]ntos (cent[ií]metros|metros|kil[oó]metros|kilos|gramos|libras|millas|pulgadas) son (\d+(?:\.\d+)?) (cent[ií]metros|metros|kil[oó]metros|kilos|gramos|libras|millas|pulgadas|pies)/);
+        if (convMatch) {
+            const targetUnit = convMatch[1].toLowerCase();
+            const value = parseFloat(convMatch[2]);
+            const sourceUnit = convMatch[3].toLowerCase();
+            
+            let result = null;
+            if (sourceUnit.includes('pulgada') && targetUnit.includes('cent')) result = value * 2.54;
+            else if (sourceUnit.includes('cent') && targetUnit.includes('pulgada')) result = value / 2.54;
+            else if (sourceUnit.includes('kilo') && targetUnit.includes('libra')) result = value * 2.20462;
+            else if (sourceUnit.includes('libra') && targetUnit.includes('kilo')) result = value / 2.20462;
+            else if ((sourceUnit === 'kilómetros' || sourceUnit === 'kilometros') && targetUnit.includes('milla')) result = value * 0.621371;
+            else if (sourceUnit.includes('milla') && (targetUnit === 'kilómetros' || targetUnit === 'kilometros')) result = value / 0.621371;
+
+            if (result !== null) {
+                return `${value} ${sourceUnit} equivalen aproximadamente a ${result.toFixed(2)} ${targetUnit}.`;
+            }
+        }
+
         // 1. Cálculos matemáticos inmediatos
         const mathResult = this.parseMath(text);
         if (mathResult !== null) return mathResult;
