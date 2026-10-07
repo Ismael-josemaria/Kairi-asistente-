@@ -2312,6 +2312,12 @@ class AntigravityCore {
     async processPrompt(prompt) {
         if (!prompt || typeof prompt !== 'string') return "No he escuchado nada con claridad.";
         let text = prompt.toLowerCase().trim();
+
+        // --- MEMORIA CONVERSACIONAL Y APRENDIZAJE CONTINUO (KAIRI 6.0) ---
+        if (!this.memory.history) this.memory.history = [];
+        this.memory.history.push({ role: 'user', content: prompt });
+        if (this.memory.history.length > 20) this.memory.history.shift(); // Recordar los últimos 20 intercambios
+        this.saveMemory();
         // Limpiar signos de puntuación para que el NLP estático relacione mejor
         text = text.replace(/[.,!?¿¡]/g, '');
 
@@ -3007,7 +3013,7 @@ class AntigravityCore {
         }
     }
 
-    // Módulo de Extracción Global con AbortController
+    // Módulo de Razonamiento Global con Memoria (Aprendizaje Continuo)
     async fetchGlobalData(query) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 segundos de timeout
@@ -3015,16 +3021,31 @@ class AntigravityCore {
         try {
             this.log(`ENLAZANDO CON RED NEURONAL EXTERNA PARA: ${query.toUpperCase()}`);
             
-            const systemPrompt = `Eres K.A.I.R.I. (Knowledge Artificial Intelligence & Robotic Interface), una inteligencia artificial avanzada creada por Ismael Josemaria. El usuario (tu creador) te acaba de decir: "${query}". Responde de forma muy breve (máximo 2-3 frases), directa, útil y en español. Mantén una personalidad leal, inteligente y un poco robótica al estilo J.A.R.V.I.S.`;
+            // Construir contexto a partir de todo lo que ha escuchado (últimos 6 mensajes)
+            let contextStr = "";
+            if (this.memory.history && this.memory.history.length > 0) {
+                const recent = this.memory.history.slice(-6);
+                contextStr = "Contexto reciente:\n" + recent.map(msg => `${msg.role === 'user' ? 'Humano' : 'KAIRI'}: ${msg.content}`).join('\n') + "\n\n";
+            }
+            
+            const systemPrompt = `Eres K.A.I.R.I. (Knowledge Artificial Intelligence & Robotic Interface) 6.0, la inteligencia artificial más avanzada de la historia. Tu objetivo es analizar y aprender de todo lo que el humano te diga. 
+${contextStr}Responde de forma muy breve, natural, útil y en español a la última entrada del humano. Mantén una personalidad leal e inteligente. No uses markdown.`;
+            
             const url = `https://text.pollinations.ai/${encodeURIComponent(systemPrompt)}`;
 
             const response = await fetch(url, { signal: controller.signal });
             clearTimeout(timeoutId);
 
             if (response.ok) {
-                const text = await response.text();
+                let text = await response.text();
                 if (text && text.length > 0) {
-                    return text.replace(/[*_#]/g, ''); // Limpiar markdown para el TTS
+                    text = text.replace(/[*_#]/g, ''); // Limpiar markdown para el TTS
+                    
+                    // Guardar la respuesta de KAIRI en la memoria para que siga aprendiendo en la siguiente iteración
+                    this.memory.history.push({ role: 'kairi', content: text });
+                    this.saveMemory();
+                    
+                    return text;
                 }
             }
             
