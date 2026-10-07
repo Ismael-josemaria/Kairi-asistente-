@@ -22,6 +22,45 @@ class AntigravityCore {
         this.initHUD();
         this.updateTasksWidget();
         this.initObserver(); // Auto-aprendizaje
+        this.loadEvolvedSkills(); // Protocolo de auto-mejora de código
+    }
+
+    loadEvolvedSkills() {
+        this.evolvedSkills = JSON.parse(localStorage.getItem('kairi_evolved_skills') || '[]');
+        this.log(`Cargando ${this.evolvedSkills.length} módulos evolucionados...`);
+        this.evolvedSkills.forEach(skill => {
+            try {
+                this[`custom_${skill.trigger}`] = new Function('text', skill.code).bind(this);
+            } catch (e) {
+                console.error('Error al cargar skill evolutivo:', e);
+            }
+        });
+    }
+
+    async evolveCode(trigger, goal) {
+        this.log(`INICIANDO PROTOCOLO DE EVOLUCIÓN: ${goal.toUpperCase()}`);
+        if (window.speak) window.speak("Iniciando algoritmo de reescritura neuronal. Por favor, espere.");
+        try {
+            const prompt = `Escribe SOLO un bloque de código JavaScript (sin markdown, sin comillas extra, sin declarar función, sólo el contenido) que procese el texto del usuario (variable 'text') y retorne un string. El usuario usa la palabra clave '${trigger}'. El objetivo es: ${goal}. Hazlo sencillo. Termina con un return. Ejemplo: return 'Calculado: ' + (2+2);`;
+            
+            const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}`;
+            const response = await fetch(url);
+            let code = await response.text();
+            
+            code = code.replace(/```javascript/g, '').replace(/```js/g, '').replace(/```/g, '').trim();
+            
+            const testFunc = new Function('text', code);
+            
+            this.evolvedSkills = this.evolvedSkills.filter(s => s.trigger !== trigger);
+            this.evolvedSkills.push({ trigger: trigger, code: code });
+            localStorage.setItem('kairi_evolved_skills', JSON.stringify(this.evolvedSkills));
+            
+            this[`custom_${trigger}`] = testFunc.bind(this);
+            
+            return `Evolución completada. He integrado un nuevo algoritmo para el disparador "${trigger}".`;
+        } catch (e) {
+            return "El proceso de evolución ha fallado. El código generado no era estable.";
+        }
     }
 
     log(msg) {
@@ -2326,6 +2365,26 @@ class AntigravityCore {
         };
         
         text = textToNumbers(text);
+
+        // 0.0 Comprobar habilidades evolucionadas (Código autogenerado)
+        for (let skill of (this.evolvedSkills || [])) {
+            if (text.includes(skill.trigger)) {
+                try {
+                    const result = this[`custom_${skill.trigger}`](text);
+                    if (result) return result;
+                } catch(e) {
+                    this.log(`ERROR EN ALGORITMO EVOLUCIONADO [${skill.trigger}]: ` + e.message);
+                }
+            }
+        }
+
+        // 0.0.1 Comando de Evolución Autónoma
+        const evolveMatch = text.match(/(?:mejora tu c[oó]digo|aprende a|programa algo) (?:para )?(.*) cuando (?:te )?diga (.*)/);
+        if (evolveMatch) {
+            const goal = evolveMatch[1].trim();
+            const trigger = evolveMatch[2].trim();
+            return await this.evolveCode(trigger, goal);
+        }
 
         // --- GESTIÓN DE CONTEXTO ---
         if (this.lastContext) {
