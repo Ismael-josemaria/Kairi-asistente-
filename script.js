@@ -453,7 +453,7 @@ hud.addEventListener('click', async () => {
     // Secuencia de arranque automática (Primera vez)
     if (!hasBooted) {
         hasBooted = true;
-        hudLog("INICIANDO SECUENCIA MK V...");
+        hudLog("INICIANDO NÚCLEO KAIRI 6.0...");
         hudLog("PUENTE DE RED... ESTABLE");
         hudLog("NÚCLEOS NEURONALES... CALIBRADOS");
         speak("Sistemas en línea. Inteligencia artificial operativa. A su entera disposición, señor.");
@@ -709,7 +709,7 @@ window.speechSynthesis.onvoiceschanged = () => {
 // Initial Greeting
 window.onload = async () => {
     setTimeout(() => {
-        typeWriter(statusText, "Sistema Stark Mark II en línea. Haz clic en el núcleo holográfico para enlazar la voz.", 40);
+        typeWriter(statusText, "Sistema KAIRI 6.0 en línea. Haz clic en el núcleo holográfico para enlazar la voz.", 40);
     }, 1000);
     initParticles();
 };

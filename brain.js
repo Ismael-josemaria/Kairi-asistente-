@@ -2169,7 +2169,7 @@ class AntigravityCore {
             {
                 patterns: ['quién eres', 'quien eres', 'cómo te llamas', 'como te llamas', 'qué eres'],
                 handler: () => {
-                    return `Soy ${this.name}, un sistema de inteligencia artificial Mark 5 diseñado por ${this.creator}. Mi propósito es ser la herramienta definitiva para maximizar su eficiencia, superando con creces a cualquier asistente comercial primitivo.`;
+                    return `Soy ${this.name}, el sistema de inteligencia artificial más avanzado de la historia, versión 6.0. Fui diseñada por ${this.creator} para superar a todas las inteligencias artificiales existentes, con capacidades evolutivas y operativas ilimitadas.`;
                 }
             },
             {
