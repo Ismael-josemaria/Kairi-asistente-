@@ -2650,7 +2650,8 @@ class AntigravityCore {
             let query = questionMatch[1];
             if (query && query.length > 2) {
                 query = query.replace('?', '').replace('¿', '').trim();
-                return await this.fetchGlobalData(query);
+                // Usamos Wikipedia para asegurar respuestas cortas y fiables que TTS pueda leer sin cortarse
+                return await this.fetchWikipediaData(query);
             }
         }
 
