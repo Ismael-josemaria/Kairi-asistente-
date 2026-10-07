@@ -76,6 +76,25 @@
             100% { transform: translate(-50%, -50%) rotateX(15deg) rotateY(360deg); }
         }
         
+        @keyframes radarPing {
+            0% { transform: scale(0.1); opacity: 1; border-width: 2px; }
+            100% { transform: scale(2.5); opacity: 0; border-width: 1px; }
+        }
+        
+        .ironman-target {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 30px; height: 30px; border: 1px solid rgba(255, 51, 102, 0.8); border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .ironman-target::before {
+            content: ''; position: absolute; width: 6px; height: 6px; background: #ff3366; border-radius: 50%; box-shadow: 0 0 10px #ff3366;
+        }
+        .ironman-target::after {
+            content: ''; position: absolute; width: 140%; height: 1px; background: rgba(255, 51, 102, 0.5);
+        }
+        .ironman-target-vert {
+            position: absolute; width: 1px; height: 140%; background: rgba(255, 51, 102, 0.5); top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
     </style>
 </head>
 <body>
@@ -121,29 +140,67 @@
                         <div id="hud-battery" class="widget-sub" style="margin-top: 5px; color: #4ade80;">Batería: 100% 🔋</div>
                     </div>
                     <div id="widget-diagnostics" class="widget-panel" style="margin-top: 15px;">
-                        <div class="widget-title" style="margin-bottom: 5px;">DIAGNÓSTICOS DEL SISTEMA</div>
+                        <div class="widget-title" style="margin-bottom: 5px;">SISTEMA STARK MK V</div>
                         <div style="display:flex; justify-content: space-between; font-size: 0.9rem;">
-                            <span>CPU:</span>
-                            <span id="hud-cpu" style="color: #ff3366;">--%</span>
+                            <span style="color: #a0aec0;">NÚCLEO PRINCIPAL:</span>
+                            <span id="hud-cpu" style="color: #ff3366; font-weight: bold; text-shadow: 0 0 5px #ff3366;">--%</span>
                         </div>
-                        <div style="width: 100%; height: 5px; background: rgba(0,243,255,0.1); margin-top: 2px; border-radius: 2px; overflow: hidden;">
-                            <div id="hud-cpu-bar" style="width: 0%; height: 100%; background: #ff3366; transition: width 0.5s;"></div>
+                        <div style="width: 100%; height: 5px; background: rgba(255,51,102,0.1); margin-top: 2px; border-radius: 2px; overflow: hidden; border: 1px solid rgba(255,51,102,0.3);">
+                            <div id="hud-cpu-bar" style="width: 0%; height: 100%; background: #ff3366; transition: width 0.5s; box-shadow: 0 0 10px #ff3366;"></div>
                         </div>
                         <div style="display:flex; justify-content: space-between; font-size: 0.9rem; margin-top: 10px;">
-                            <span>RAM:</span>
-                            <span id="hud-ram" style="color: #00f3ff;">--%</span>
+                            <span style="color: #a0aec0;">MEMORIA CUÁNTICA:</span>
+                            <span id="hud-ram" style="color: #00f3ff; font-weight: bold; text-shadow: 0 0 5px #00f3ff;">--%</span>
                         </div>
-                        <div style="width: 100%; height: 5px; background: rgba(0,243,255,0.1); margin-top: 2px; border-radius: 2px; overflow: hidden;">
-                            <div id="hud-ram-bar" style="width: 0%; height: 100%; background: #00f3ff; transition: width 0.5s;"></div>
+                        <div style="width: 100%; height: 5px; background: rgba(0,243,255,0.1); margin-top: 2px; border-radius: 2px; overflow: hidden; border: 1px solid rgba(0,243,255,0.3);">
+                            <div id="hud-ram-bar" style="width: 0%; height: 100%; background: #00f3ff; transition: width 0.5s; box-shadow: 0 0 10px #00f3ff;"></div>
                         </div>
                     </div>
-                    <div id="widget-crypto" class="widget-panel" style="margin-top: 15px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                            <div class="widget-title" style="margin:0;">MERCADO CRIPTO</div>
-                            <button id="crypto-refresh-btn" style="background: transparent; border: 1px solid #00f3ff; color: #00f3ff; cursor: pointer; border-radius: 4px; font-family: 'Share Tech Mono'; padding: 2px 8px; transition: all 0.3s;" onmouseover="this.style.background='rgba(0,243,255,0.2)'" onmouseout="this.style.background='transparent'">SYNC</button>
+                    <!-- NUEVO: IRON MAN HUD ELEMENTS -->
+                    <div id="widget-armor" class="widget-panel" style="margin-top: 15px; border-color: rgba(255, 51, 102, 0.5); box-shadow: 0 0 15px rgba(255, 51, 102, 0.15);">
+                        <div class="widget-title" style="margin-bottom: 5px; color: #ff3366; text-shadow: 0 0 8px rgba(255, 51, 102, 0.6);">INTEGRIDAD DE ARMADURA</div>
+                        <div style="display:flex; justify-content: space-between; font-size: 0.9rem;">
+                            <span style="color: #a0aec0;">ESTADO MK V:</span>
+                            <span id="hud-armor-val" style="color: #ff3366; font-weight: bold; text-shadow: 0 0 5px #ff3366; font-size: 1.2rem;">98%</span>
                         </div>
-                        <div id="hud-btc" class="widget-value" style="font-size: 1.2rem;">BTC: ---</div>
-                        <div id="hud-eth" class="widget-sub">ETH: ---</div>
+                        <div style="width: 100%; height: 6px; background: rgba(255,51,102,0.1); margin-top: 5px; border-radius: 2px; overflow: hidden; border: 1px solid rgba(255,51,102,0.3);">
+                            <div id="hud-armor-bar" style="width: 98%; height: 100%; background: #ff3366; box-shadow: 0 0 10px #ff3366;"></div>
+                        </div>
+                        <div style="font-size: 0.75rem; color: #ff3366; margin-top: 8px; text-align: left; opacity: 0.9; letter-spacing: 1px;">SISTEMAS VITALES: ESTABLES // DAÑO MENOR</div>
+                    </div>
+
+                    <div id="widget-power" class="widget-panel" style="margin-top: 15px; border-color: rgba(0, 243, 255, 0.5); box-shadow: 0 0 15px rgba(0, 243, 255, 0.15);">
+                        <div class="widget-title" style="margin-bottom: 5px; color: #00f3ff; text-shadow: 0 0 8px rgba(0, 243, 255, 0.6);">POTENCIA ARC REACTOR</div>
+                        <div style="display:flex; justify-content: space-between; font-size: 0.9rem;">
+                            <span style="color: #a0aec0;">SALIDA NÚCLEO:</span>
+                            <span id="hud-power-val" style="color: #00f3ff; font-weight: bold; text-shadow: 0 0 5px #00f3ff; font-size: 1.2rem;">3.2 GJ/s</span>
+                        </div>
+                        <div style="width: 100%; height: 6px; background: rgba(0,243,255,0.1); margin-top: 5px; border-radius: 2px; overflow: hidden; border: 1px solid rgba(0,243,255,0.3);">
+                            <div id="hud-power-bar" style="width: 100%; height: 100%; background: #00f3ff; box-shadow: 0 0 10px #00f3ff;"></div>
+                        </div>
+                        <div style="font-size: 0.75rem; color: #00f3ff; margin-top: 8px; text-align: left; opacity: 0.9; letter-spacing: 1px;">RESERVA ENERGÉTICA: 100% // COMBATE: OK</div>
+                    </div>
+
+                    <div id="widget-location" class="widget-panel" style="margin-top: 15px; border-color: rgba(74, 222, 128, 0.5); box-shadow: 0 0 15px rgba(74, 222, 128, 0.15);">
+                        <div class="widget-title" style="margin-bottom: 5px; color: #4ade80; text-shadow: 0 0 8px rgba(74, 222, 128, 0.6);">SITIO TÁCTICO</div>
+                        <div style="display:flex; justify-content: space-between; font-size: 0.9rem;">
+                            <span style="color: #a0aec0;">COORDENADAS:</span>
+                            <span id="hud-coords-val" style="color: #4ade80; font-weight: bold; text-shadow: 0 0 5px #4ade80;">34.01° N, 118.80° W</span>
+                        </div>
+                        <div style="margin-top: 15px; margin-bottom: 5px; width: 100%; height: 120px; background: rgba(74, 222, 128, 0.03); border: 1px solid rgba(74, 222, 128, 0.2); border-radius: 8px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                            <!-- Radar effect -->
+                            <div style="width: 150%; height: 150%; position: absolute; border-radius: 50%; border: 1px dashed rgba(74, 222, 128, 0.6); animation: radarPing 3s infinite linear;"></div>
+                            <div style="width: 90%; height: 90%; position: absolute; border-radius: 50%; border: 1px solid rgba(74, 222, 128, 0.2);"></div>
+                            <div style="width: 50%; height: 50%; position: absolute; border-radius: 50%; border: 1px solid rgba(74, 222, 128, 0.3);"></div>
+                            <!-- Crosshair and Dot -->
+                            <div class="ironman-target">
+                                <div class="ironman-target-vert"></div>
+                            </div>
+                            <!-- Grid lines -->
+                            <div style="width: 100%; height: 1px; background: rgba(74, 222, 128, 0.15); position: absolute; top: 50%; left: 0; transform: translateY(-50%);"></div>
+                            <div style="width: 1px; height: 100%; background: rgba(74, 222, 128, 0.15); position: absolute; top: 0; left: 50%; transform: translateX(-50%);"></div>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #4ade80; margin-top: 5px; text-align: center; text-transform: uppercase; letter-spacing: 2px;">MALIBU POINT, 10880</div>
                     </div>
                     <div id="widget-weather" class="widget-panel" style="margin-top: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
