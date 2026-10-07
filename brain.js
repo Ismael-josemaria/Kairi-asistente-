@@ -2228,10 +2228,11 @@ class AntigravityCore {
                 }
             },
             {
-                patterns: ['abre mi correo', 'abrir correo', 'abre gmail', 'revisa mis emails'],
+                patterns: ['abre mi correo', 'abrir correo', 'abre gmail', 'revisa mis emails', 'revisa mi correo', 'mis correos', 'lee mis mensajes', 'mi gmail'],
                 handler: () => {
-                    window.open('https://mail.google.com/', '_blank');
-                    return "Accediendo a su bandeja de entrada segura, señor.";
+                    this.log('ABRIENDO GESTOR DE CORREOS CON FILTROS DE PRIVACIDAD...');
+                    window.open('https://mail.google.com/mail/u/0/#search/in%3Ainbox+-tarjeta+-tarjetas+-visa+-mastercard+-banco+-compra+-factura', '_blank');
+                    return "Accediendo a su gestor de correo seguro. He aplicado filtros de privacidad para ocultar cualquier información relacionada con sus tarjetas.";
                 }
             },
             {
