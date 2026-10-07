@@ -2736,13 +2736,32 @@ class AntigravityCore {
             }
         }
 
-        const googleMatch = text.match(/(?:busca en google|busca en internet|busca en la web) (.*)/);
+        const googleMatch = text.match(/(?:busca en google|busca en internet|busca en la web|busca información sobre|busca información de) (.*)/);
         if (googleMatch) {
             const query = googleMatch[1];
             if (query) {
-                this.log(`BUSCANDO EN LA RED: ${query.toUpperCase()}`);
+                this.log(`BUSCANDO EN LA RED (KAIRI 6.0): ${query.toUpperCase()}`);
+                
+                try {
+                    const ddgResponse = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
+                    const data = await ddgResponse.json();
+                    if (data && data.AbstractText) {
+                        return `He consultado la red global: ${data.AbstractText.split('. ').slice(0, 2).join('. ')}.`;
+                    }
+                } catch(e) {}
+                
+                const wikiResult = await this.fetchWikipediaData(query);
+                if (!wikiResult.includes('No he encontrado') && !wikiResult.includes('No he podido conectar')) {
+                    return wikiResult;
+                }
+                
+                const llmResult = await this.fetchGlobalData(query);
                 window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
-                return `Abriendo terminal de búsqueda global para investigar "${query}".`;
+                if (!llmResult.includes('inactivo')) {
+                    return llmResult + " Además, he desplegado los resultados visuales en su monitor.";
+                }
+
+                return `He abierto un terminal de búsqueda global para investigar "${query}".`;
             }
         }
 
